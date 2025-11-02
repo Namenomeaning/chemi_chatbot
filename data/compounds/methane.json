@@ -1,0 +1,12 @@
+{
+  "doc_id": "methane",
+  "iupac_name": "Methane",
+  "common_names": ["Metan", "Khí đầm lầy", "Marsh gas"],
+  "formula": "CH4",
+  "molecular_formula": "CH4",
+  "class": "Ankan (Alkane)",
+  "image_path": "images/methane.png",
+  "audio_path": "audio_output/methane.wav",
+  "info": "Methane là ankan đơn giản nhất, khí không màu, không mùi, nhẹ hơn không khí. Là thành phần chính của khí tự nhiên, được sử dụng làm nhiên liệu và nguyên liệu hóa học.",
+  "naming_rule": "Ankan có 1 carbon được gọi là methane (tiền tố 'meth-' + hậu tố '-ane')"
+}

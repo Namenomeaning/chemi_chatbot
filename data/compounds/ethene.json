@@ -1,0 +1,12 @@
+{
+  "doc_id": "ethene",
+  "iupac_name": "Ethene",
+  "common_names": ["Etilen", "Ethylene"],
+  "formula": "C2H4",
+  "molecular_formula": "C2H4",
+  "class": "Anken (Alkene)",
+  "image_path": "images/ethene.png",
+  "audio_path": "audio_output/ethene.wav",
+  "info": "Ethene là anken đơn giản nhất, khí không màu, có liên kết đôi C=C. Được sử dụng để sản xuất polyethylene (nhựa PE), ethanol công nghiệp, và là hormone thực vật tự nhiên.",
+  "naming_rule": "Tên hydrocarbon có liên kết đôi: tiền tố số carbon + hậu tố '-ene' → ethene"
+}

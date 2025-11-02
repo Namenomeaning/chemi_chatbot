@@ -1,0 +1,12 @@
+{
+  "doc_id": "ethyl_acetate",
+  "iupac_name": "Ethyl ethanoate",
+  "common_names": ["Etyl axetat", "Ethyl acetate"],
+  "formula": "CH3COOC2H5",
+  "molecular_formula": "C4H8O2",
+  "class": "Este (Ester)",
+  "image_path": "images/ethyl_acetate.png",
+  "audio_path": "audio_output/ethyl_acetate.wav",
+  "info": "Ethyl ethanoate (ethyl acetate) là este đơn giản, chất lỏng không màu, có mùi thơm dễ chịu. Được sử dụng làm dung môi trong sơn, keo dán, mỹ phẩm, và công nghiệp dược phẩm.",
+  "naming_rule": "Tên este: tên gốc alcohol (ethyl) + tên gốc acid với hậu tố '-oate' (ethanoate) → ethyl ethanoate"
+}

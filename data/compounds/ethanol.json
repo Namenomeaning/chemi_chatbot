@@ -1,0 +1,12 @@
+{
+  "doc_id": "ethanol",
+  "iupac_name": "Ethanol",
+  "common_names": ["Rượu etylic", "Ancol etylic", "Cồn", "Ethyl alcohol"],
+  "formula": "C2H5OH",
+  "molecular_formula": "C2H6O",
+  "class": "Ancol (Alcohol)",
+  "image_path": "images/ethanol.png",
+  "audio_path": "audio_output/ethanol.wav",
+  "info": "Ethanol là ancol đơn chức bậc 1, chất lỏng không màu, tan vô hạn trong nước. Được sử dụng làm dung môi, nhiên liệu sinh học, và là thành phần chính trong đồ uống có cồn.",
+  "naming_rule": "Tên hydrocarbon tương ứng (ethane) + hậu tố '-ol' → ethanol"
+}

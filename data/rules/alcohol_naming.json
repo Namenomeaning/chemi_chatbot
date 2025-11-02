@@ -1,0 +1,11 @@
+{
+  "doc_id": "alcohol_naming_rules",
+  "iupac_name": "Alcohol Naming Rules",
+  "common_names": ["Quy tắc gọi tên ancol", "Alcohol nomenclature"],
+  "formula": "",
+  "molecular_formula": "",
+  "class": "Quy tắc đặt tên (Naming rules)",
+  "image_path": "",
+  "info": "Quy tắc IUPAC đặt tên ancol:\n1. Xác định mạch carbon chính dài nhất chứa nhóm -OH\n2. Đánh số từ phía gần nhóm -OH nhất\n3. Tên = Tên hydrocarbon tương ứng (thay -e bằng -ol) + vị trí nhóm -OH\n\nVí dụ:\n- CH3OH: Methanol (ancol đơn giản nhất)\n- C2H5OH: Ethanol (mạch 2 carbon + -ol)\n- CH3-CHOH-CH3: Propan-2-ol (nhóm -OH ở carbon số 2)\n- CH3-CH2-CH2OH: Propan-1-ol (nhóm -OH ở carbon số 1)\n\nPhân loại ancol:\n- Ancol bậc 1: -OH gắn với carbon bậc 1 (ví dụ: ethanol)\n- Ancol bậc 2: -OH gắn với carbon bậc 2 (ví dụ: propan-2-ol)\n- Ancol bậc 3: -OH gắn với carbon bậc 3",
+  "naming_rule": "Tên hydrocarbon (thay -e → -ol) + số chỉ vị trí nhóm -OH nếu cần"
+}

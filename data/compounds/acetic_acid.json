@@ -1,0 +1,12 @@
+{
+  "doc_id": "acetic_acid",
+  "iupac_name": "Ethanoic acid",
+  "common_names": ["Axit axetic", "Acetic acid", "Axit giấm"],
+  "formula": "CH3COOH",
+  "molecular_formula": "C2H4O2",
+  "class": "Axit carboxylic (Carboxylic acid)",
+  "image_path": "images/acetic_acid.png",
+  "audio_path": "audio_output/acetic_acid.wav",
+  "info": "Ethanoic acid (acetic acid) là axit carboxylic yếu, chất lỏng không màu, có mùi chua đặc trưng. Giấm ăn chứa 3-5% acetic acid. Được sử dụng trong sản xuất thực phẩm, dược phẩm, và hóa chất.",
+  "naming_rule": "Tên hydrocarbon tương ứng (ethane) + hậu tố '-oic acid' → ethanoic acid. Tên thông thường: acetic acid"
+}

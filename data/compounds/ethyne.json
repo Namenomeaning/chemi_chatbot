@@ -1,0 +1,12 @@
+{
+  "doc_id": "ethyne",
+  "iupac_name": "Ethyne",
+  "common_names": ["Axetilen", "Acetylene"],
+  "formula": "C2H2",
+  "molecular_formula": "C2H2",
+  "class": "Ankin (Alkyne)",
+  "image_path": "images/ethyne.png",
+  "audio_path": "audio_output/ethyne.wav",
+  "info": "Ethyne là ankin đơn giản nhất, khí không màu, có liên kết ba C≡C. Được sử dụng trong hàn cắt kim loại (ngọn lửa oxi-axetilen nhiệt độ cao ~3000°C) và tổng hợp hóa học.",
+  "naming_rule": "Tên hydrocarbon có liên kết ba: tiền tố số carbon + hậu tố '-yne' → ethyne"
+}
