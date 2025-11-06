@@ -45,6 +45,11 @@ for data in compounds:
     # Simple path: all audio files in single directory
     audio_path = audio_dir / f"{doc_id}.wav"
 
+    # Skip if already exists
+    if audio_path.exists():
+        print(f"⏭️  Skipping {doc_id} (already exists)")
+        continue
+
     # Generate TTS using Gemini
     response = client.models.generate_content(
         model="gemini-2.5-flash-preview-tts",
