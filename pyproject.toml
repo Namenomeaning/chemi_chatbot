@@ -7,7 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.120.4",
     "google-genai>=1.47.0",
-    "gradio>=5.49.1",
+    "gradio>=6.0.2",
     "langchain>=1.0.3",
     "langchain-google-genai>=3.0.0",
     "langgraph>=1.0.2",

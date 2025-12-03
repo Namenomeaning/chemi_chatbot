@@ -199,7 +199,7 @@ custom_css = """
 """
 
 # Build interface with Blocks for full customization
-with gr.Blocks(theme=gr.themes.Soft(), css=custom_css, title="CHEMI - Trợ lý Hóa học") as demo:
+with gr.Blocks(css=custom_css, title="CHEMI - Trợ lý Hóa học") as demo:
     # Header
     gr.Markdown(
         """
