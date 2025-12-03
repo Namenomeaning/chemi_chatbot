@@ -2,16 +2,16 @@
 
 from typing import Dict, Any
 from ..state import AgentState
-from ...services import qdrant_service
+from ...services.keyword_search_service import keyword_search_service
 from ...core.logging import setup_logging
 
 logger = setup_logging(__name__)
 
 
 def retrieve_from_rag(state: AgentState) -> Dict[str, Any]:
-    """Retrieve relevant documents from RAG.
+    """Retrieve relevant documents using keyword search.
 
-    Performs hybrid search (dense + sparse with RRF fusion).
+    Fast keyword-based search with fuzzy matching (no GPU needed).
 
     Args:
         state: Current agent state
@@ -24,8 +24,8 @@ def retrieve_from_rag(state: AgentState) -> Dict[str, Any]:
 
     logger.info(f"Retrieve - searching for: '{query[:50]}...'")
 
-    # Hybrid search with RRF
-    results = qdrant_service.hybrid_search(query)
+    # Keyword search with fuzzy matching
+    results = keyword_search_service.search(query, top_k=3)
 
     logger.info(f"Retrieve - found {len(results)} documents")
 

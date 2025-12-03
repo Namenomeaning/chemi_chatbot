@@ -28,33 +28,50 @@ def extract_and_validate(state: AgentState) -> Dict[str, Any]:
     is_image_only = has_image and (not state.get("input_text") or query == "(hình ảnh)")
 
     if is_image_only:
-        prompt = """Bạn là chuyên gia nhận dạng cấu trúc phân tử, tuân thủ NGHIÊM NGẶT danh pháp IUPAC.
-
-Phân tích hình cấu trúc phân tử và nhận dạng theo CHUẨN IUPAC quốc tế.
+        prompt = """Bạn là chuyên gia nhận dạng cấu trúc phân tử.
 
 Input: Hình cấu trúc phân tử
 
+Nhiệm vụ: Nhận dạng và trả về TÊN IUPAC duy nhất để search.
+
 Output:
-- search_query: Tên IUPAC quốc tế chính thức + công thức (VD: "Ethanol C2H6O" KHÔNG PHẢI "Rượu etylic")
-- is_valid: true nếu nhận dạng chính xác được
-- error_message: null hoặc mô tả lỗi
+- search_query: CHỈ tên IUPAC (VD: "Ethanol", "Methane")
+- is_valid: true nếu nhận dạng được
+- error_message: null hoặc lỗi
 """
     else:
-        prompt = f"""Bạn là chuyên gia danh pháp IUPAC quốc tế.
-
-Mở rộng query với keywords CHUẨN IUPAC và kiểm tra tính hợp lệ.
+        prompt = f"""Bạn là chuyên gia chuẩn hóa tên hóa chất.
 
 Input: {query}
 
-Yêu cầu:
-- Chuyển tên thông thường sang tên IUPAC chuẩn (VD: "Rượu" → "Ethanol", "Metan" → "Methane")
-- Chuẩn hóa công thức (VD: "C2H5OH" → "Ethanol C2H6O")
-- Thêm ký hiệu nguyên tố nếu hỏi về nguyên tố (VD: "Hydro" → "Hydrogen H")
+Nhiệm vụ: Chuẩn hóa thành TÊN IUPAC hoặc CÔNG THỨC để search.
+
+Quy tắc chuẩn hóa:
+1. Tên tiếng Việt → Tên IUPAC:
+   - "Natri" → "Sodium"
+   - "Hydro" → "Hydrogen"
+   - "Metan" → "Methane"
+   - "Rượu" hoặc "Cồn" → "Ethanol"
+
+2. Công thức → Giữ nguyên công thức:
+   - "CH4" → "CH4"
+   - "C2H5OH" → "C2H5OH"
+   - "Na" → "Na"
+
+3. Tên IUPAC → Giữ nguyên:
+   - "Ethanol" → "Ethanol"
+   - "Sodium" → "Sodium"
 
 Output:
-- search_query: Tên IUPAC quốc tế chính thức + công thức/ký hiệu
-- is_valid: true nếu tên/công thức hợp lệ hoặc có thể chuẩn hóa được
-- error_message: Gợi ý sửa nếu hoàn toàn sai, null nếu hợp lệ
+- search_query: Tên IUPAC HOẶC công thức (CHỈ MỘT TRONG HAI, không kết hợp)
+- is_valid: true nếu nhận dạng được
+- error_message: null hoặc lỗi
+
+VÍ DỤ:
+Input: "Natri là gì?" → search_query: "Sodium"
+Input: "CH4" → search_query: "CH4"
+Input: "Ethanol" → search_query: "Ethanol"
+Input: "C2H5OH" → search_query: "C2H5OH"
 """
 
     # Call Gemini 2.5 Flash with structured output
