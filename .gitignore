@@ -60,6 +60,13 @@ Thumbs.db
 data/audio/*.wav
 data/audio/*.mp3
 
+# Model files (large files, download separately)
+models/tts/*.onnx
+models/embedding/*/
+
+# Download scripts (optional, can be committed)
+# download_models.sh
+
 # Logs
 *.log
 logs/
@@ -73,3 +80,15 @@ htmlcov/
 data/temp/
 
 CLAUDE.md
+
+.venv
+
+.claude
+
+.gradio
+
+qdrant_storage
+
+models
+
+.env

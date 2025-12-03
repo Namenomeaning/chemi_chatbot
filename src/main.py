@@ -9,6 +9,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import base64
+from contextlib import asynccontextmanager
 from typing import Optional, Dict, Any
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
@@ -20,6 +21,7 @@ from dotenv import load_dotenv
 from src.core.logging import setup_logging
 from src.agent.graph import graph
 from src.agent.state import AgentState
+from src.services import embedding_service
 
 load_dotenv(override=True)
 logger = setup_logging(__name__)
@@ -38,17 +40,36 @@ class QueryResponse(BaseModel):
     success: bool
     thread_id: str
     text_response: Optional[str] = None
-    image_url: Optional[str] = None
-    audio_url: Optional[str] = None
+    image_path: Optional[str] = None
+    audio_path: Optional[str] = None
     error: Optional[str] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events."""
+    # Startup: Load models
+    logger.info("FastAPI startup: Loading embedding model...")
+    try:
+        embedding_service.load_model()
+        logger.info(f"✓ Embedding model loaded (dim: {embedding_service.embedding_dim})")
+    except Exception as e:
+        logger.error(f"Failed to load embedding model: {str(e)}")
+        raise
+
+    yield
+
+    # Shutdown: Cleanup if needed
+    logger.info("FastAPI shutdown: Cleaning up...")
 
 
 # FastAPI app
 app = FastAPI(
     title="Chemistry Chatbot API",
     description="LangGraph-powered chemistry chatbot",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS
@@ -135,8 +156,8 @@ async def query_chemistry(request: QueryRequest):
             success=True,
             thread_id=thread_id,
             text_response=final_response.get("text_response", ""),
-            image_url=final_response.get("image_url"),
-            audio_url=final_response.get("audio_url"),
+            image_path=final_response.get("image_path"),
+            audio_path=final_response.get("audio_path"),
             metadata={
                 "rephrased_query": result.get("rephrased_query", ""),
                 "search_query": result.get("search_query", ""),
@@ -168,7 +189,11 @@ async def query_with_upload(
         QueryResponse
     """
     try:
-        if not text and not image:
+        # Validate input - check for meaningful text or image
+        has_text = text and text.strip()
+        has_image = image is not None
+        
+        if not has_text and not has_image:
             raise HTTPException(status_code=400, detail="Either text or image required")
 
         # Generate thread_id if not provided
@@ -218,8 +243,8 @@ async def query_with_upload(
             success=True,
             thread_id=thread_id,
             text_response=final_response.get("text_response", ""),
-            image_url=final_response.get("image_url"),
-            audio_url=final_response.get("audio_url"),
+            image_path=final_response.get("image_path"),
+            audio_path=final_response.get("audio_path"),
             metadata={
                 "rephrased_query": result.get("rephrased_query", ""),
                 "search_query": result.get("search_query", ""),
@@ -239,7 +264,7 @@ async def serve_file(file_path: str):
     """Serve static files (images, audio).
 
     Args:
-        file_path: Relative path (e.g., "data/images/ethanol.png")
+        file_path: Relative path (e.g., "images/ethanol.png" or "data/images/ethanol.png")
 
     Returns:
         FileResponse
@@ -247,14 +272,16 @@ async def serve_file(file_path: str):
     try:
         # Get project root (parent of src/)
         base_dir = Path(__file__).parent.parent
-        full_path = base_dir / file_path
+
+        # Try with data/ prefix first (current structure)
+        full_path = base_dir / "data" / file_path
 
         # Security check
         if not full_path.resolve().is_relative_to(base_dir.resolve()):
             raise HTTPException(status_code=403, detail="Access denied")
 
         if not full_path.exists():
-            raise HTTPException(status_code=404, detail="File not found")
+            raise HTTPException(status_code=404, detail=f"File not found: {file_path}")
 
         return FileResponse(path=str(full_path))
 

@@ -1,0 +1,1002 @@
+[
+  {
+    "type": "element",
+    "doc_id": "hydrogen",
+    "iupac_name": "Hydrogen",
+    "formula": "H",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Hydrogen_discharge_tube.jpg/400px-Hydrogen_discharge_tube.jpg",
+    "audio_path": "audio/elements/hydrogen.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "helium",
+    "iupac_name": "Helium",
+    "formula": "He",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Helium_discharge_tube.jpg/400px-Helium_discharge_tube.jpg",
+    "audio_path": "audio/elements/helium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "lithium",
+    "iupac_name": "Lithium",
+    "formula": "Li",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Lithium_paraffin.jpg/400px-Lithium_paraffin.jpg",
+    "audio_path": "audio/elements/lithium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "beryllium",
+    "iupac_name": "Beryllium",
+    "formula": "Be",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Beryllium_%281%29.jpg/400px-Beryllium_%281%29.jpg",
+    "audio_path": "audio/elements/beryllium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "boron",
+    "iupac_name": "Boron",
+    "formula": "B",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Boron_R105.jpg/400px-Boron_R105.jpg",
+    "audio_path": "audio/elements/boron.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "carbon",
+    "iupac_name": "Carbon",
+    "formula": "C",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Diamond_and_graphite.jpg/400px-Diamond_and_graphite.jpg",
+    "audio_path": "audio/elements/carbon.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "nitrogen",
+    "iupac_name": "Nitrogen",
+    "formula": "N",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Nitrogen_discharge_tube.jpg/400px-Nitrogen_discharge_tube.jpg",
+    "audio_path": "audio/elements/nitrogen.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "oxygen",
+    "iupac_name": "Oxygen",
+    "formula": "O",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Liquid_oxygen_in_a_beaker_4.jpg/400px-Liquid_oxygen_in_a_beaker_4.jpg",
+    "audio_path": "audio/elements/oxygen.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "fluorine",
+    "iupac_name": "Fluorine",
+    "formula": "F",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Liquid_fluorine_tighter_crop.jpg/400px-Liquid_fluorine_tighter_crop.jpg",
+    "audio_path": "audio/elements/fluorine.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "neon",
+    "iupac_name": "Neon",
+    "formula": "Ne",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Neon_discharge_tube.jpg/400px-Neon_discharge_tube.jpg",
+    "audio_path": "audio/elements/neon.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "sodium",
+    "iupac_name": "Sodium",
+    "formula": "Na",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Na_%28Sodium%29.jpg/400px-Na_%28Sodium%29.jpg",
+    "audio_path": "audio/elements/sodium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "magnesium",
+    "iupac_name": "Magnesium",
+    "formula": "Mg",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Magnesium_crystals.jpg/400px-Magnesium_crystals.jpg",
+    "audio_path": "audio/elements/magnesium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "aluminium",
+    "iupac_name": "Aluminium",
+    "formula": "Al",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Aluminium-4.jpg/400px-Aluminium-4.jpg",
+    "audio_path": "audio/elements/aluminium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "silicon",
+    "iupac_name": "Silicon",
+    "formula": "Si",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/SiliconCroda.jpg/400px-SiliconCroda.jpg",
+    "audio_path": "audio/elements/silicon.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "phosphorus",
+    "iupac_name": "Phosphorus",
+    "formula": "P",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Phosphorus-white.jpg/400px-Phosphorus-white.jpg",
+    "audio_path": "audio/elements/phosphorus.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "sulfur",
+    "iupac_name": "Sulfur",
+    "formula": "S",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Sulfur_-_Grechishkin_mine%2C_Middle_Volga_Region%2C_Russia.jpg/400px-Sulfur_-_Grechishkin_mine%2C_Middle_Volga_Region%2C_Russia.jpg",
+    "audio_path": "audio/elements/sulfur.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "chlorine",
+    "iupac_name": "Chlorine",
+    "formula": "Cl",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Chlorine_ampoule.jpg/400px-Chlorine_ampoule.jpg",
+    "audio_path": "audio/elements/chlorine.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "argon",
+    "iupac_name": "Argon",
+    "formula": "Ar",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Argon_discharge_tube.jpg/400px-Argon_discharge_tube.jpg",
+    "audio_path": "audio/elements/argon.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "potassium",
+    "iupac_name": "Potassium",
+    "formula": "K",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Potassium.JPG/400px-Potassium.JPG",
+    "audio_path": "audio/elements/potassium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "calcium",
+    "iupac_name": "Calcium",
+    "formula": "Ca",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Calcium_unter_Argon_Schutzgasatmosph%C3%A4re.jpg/400px-Calcium_unter_Argon_Schutzgasatmosph%C3%A4re.jpg",
+    "audio_path": "audio/elements/calcium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "scandium",
+    "iupac_name": "Scandium",
+    "formula": "Sc",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Scandium_sublimed_dendritic_and_1cm3_cube.jpg/400px-Scandium_sublimed_dendritic_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/scandium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "titanium",
+    "iupac_name": "Titanium",
+    "formula": "Ti",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Titan-crystal_bar.JPG/400px-Titan-crystal_bar.JPG",
+    "audio_path": "audio/elements/titanium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "vanadium",
+    "iupac_name": "Vanadium",
+    "formula": "V",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Vanadium_etched.jpg/400px-Vanadium_etched.jpg",
+    "audio_path": "audio/elements/vanadium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "chromium",
+    "iupac_name": "Chromium",
+    "formula": "Cr",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Chromium_crystals_and_1cm3_cube.jpg/400px-Chromium_crystals_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/chromium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "manganese",
+    "iupac_name": "Manganese",
+    "formula": "Mn",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Manganese_electrolytic_and_1cm3_cube.jpg/400px-Manganese_electrolytic_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/manganese.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "iron",
+    "iupac_name": "Iron",
+    "formula": "Fe",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Iron_electrolytic_and_1cm3_cube.jpg/400px-Iron_electrolytic_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/iron.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "cobalt",
+    "iupac_name": "Cobalt",
+    "formula": "Co",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Kobalt_electrolytic_and_1cm3_cube.jpg/400px-Kobalt_electrolytic_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/cobalt.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "nickel",
+    "iupac_name": "Nickel",
+    "formula": "Ni",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Nickel_chunk.jpg/400px-Nickel_chunk.jpg",
+    "audio_path": "audio/elements/nickel.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "copper",
+    "iupac_name": "Copper",
+    "formula": "Cu",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/NatCopper.jpg/400px-NatCopper.jpg",
+    "audio_path": "audio/elements/copper.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "zinc",
+    "iupac_name": "Zinc",
+    "formula": "Zn",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Zinc_fragment_sublimed_and_1cm3_cube.jpg/400px-Zinc_fragment_sublimed_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/zinc.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "gallium",
+    "iupac_name": "Gallium",
+    "formula": "Ga",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Gallium_crystals.jpg/400px-Gallium_crystals.jpg",
+    "audio_path": "audio/elements/gallium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "germanium",
+    "iupac_name": "Germanium",
+    "formula": "Ge",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Polycrystalline-germanium.jpg/400px-Polycrystalline-germanium.jpg",
+    "audio_path": "audio/elements/germanium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "arsenic",
+    "iupac_name": "Arsenic",
+    "formula": "As",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Arsen_1a.jpg/400px-Arsen_1a.jpg",
+    "audio_path": "audio/elements/arsenic.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "selenium",
+    "iupac_name": "Selenium",
+    "formula": "Se",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Selenium_1.jpg/400px-Selenium_1.jpg",
+    "audio_path": "audio/elements/selenium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "bromine",
+    "iupac_name": "Bromine",
+    "formula": "Br",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Bromine_25ml.jpg/400px-Bromine_25ml.jpg",
+    "audio_path": "audio/elements/bromine.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "krypton",
+    "iupac_name": "Krypton",
+    "formula": "Kr",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Krypton_discharge_tube.jpg/400px-Krypton_discharge_tube.jpg",
+    "audio_path": "audio/elements/krypton.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "rubidium",
+    "iupac_name": "Rubidium",
+    "formula": "Rb",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Rb5.JPG/400px-Rb5.JPG",
+    "audio_path": "audio/elements/rubidium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "strontium",
+    "iupac_name": "Strontium",
+    "formula": "Sr",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Strontium_destilled_crystals.jpg/400px-Strontium_destilled_crystals.jpg",
+    "audio_path": "audio/elements/strontium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "yttrium",
+    "iupac_name": "Yttrium",
+    "formula": "Y",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Yttrium_sublimed_dendritic_and_1cm3_cube.jpg/400px-Yttrium_sublimed_dendritic_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/yttrium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "zirconium",
+    "iupac_name": "Zirconium",
+    "formula": "Zr",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Zirconium_crystal_bar_and_1cm3_cube.jpg/400px-Zirconium_crystal_bar_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/zirconium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "niobium",
+    "iupac_name": "Niobium",
+    "formula": "Nb",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Niob_crystals_and_1cm3_cube.jpg/400px-Niob_crystals_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/niobium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "molybdenum",
+    "iupac_name": "Molybdenum",
+    "formula": "Mo",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Molybdenum_crystaline_fragment_and_1cm3_cube.jpg/400px-Molybdenum_crystaline_fragment_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/molybdenum.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "technetium",
+    "iupac_name": "Technetium",
+    "formula": "Tc",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Technetium%2C_Tc-99_Disk_-_Radioactive_Sample.jpg/400px-Technetium%2C_Tc-99_Disk_-_Radioactive_Sample.jpg",
+    "audio_path": "audio/elements/technetium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "ruthenium",
+    "iupac_name": "Ruthenium",
+    "formula": "Ru",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Ruthenium_a_half_bar.jpg/400px-Ruthenium_a_half_bar.jpg",
+    "audio_path": "audio/elements/ruthenium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "rhodium",
+    "iupac_name": "Rhodium",
+    "formula": "Rh",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Rhodium_powder_pressed_melted.jpg/400px-Rhodium_powder_pressed_melted.jpg",
+    "audio_path": "audio/elements/rhodium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "palladium",
+    "iupac_name": "Palladium",
+    "formula": "Pd",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Palladium_%2846_Pd%29.jpg/400px-Palladium_%2846_Pd%29.jpg",
+    "audio_path": "audio/elements/palladium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "silver",
+    "iupac_name": "Silver",
+    "formula": "Ag",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Silver_crystal.jpg/400px-Silver_crystal.jpg",
+    "audio_path": "audio/elements/silver.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "cadmium",
+    "iupac_name": "Cadmium",
+    "formula": "Cd",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Cadmium-crystal_bar.jpg/400px-Cadmium-crystal_bar.jpg",
+    "audio_path": "audio/elements/cadmium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "indium",
+    "iupac_name": "Indium",
+    "formula": "In",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Indium-2.jpg/400px-Indium-2.jpg",
+    "audio_path": "audio/elements/indium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "tin",
+    "iupac_name": "Tin",
+    "formula": "Sn",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Sn-Alpha-Beta.jpg/400px-Sn-Alpha-Beta.jpg",
+    "audio_path": "audio/elements/tin.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "antimony",
+    "iupac_name": "Antimony",
+    "formula": "Sb",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Antimony-4.jpg/400px-Antimony-4.jpg",
+    "audio_path": "audio/elements/antimony.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "tellurium",
+    "iupac_name": "Tellurium",
+    "formula": "Te",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Tellurium2.jpg/400px-Tellurium2.jpg",
+    "audio_path": "audio/elements/tellurium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "iodine",
+    "iupac_name": "Iodine",
+    "formula": "I",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Iodine_cristals.jpg/400px-Iodine_cristals.jpg",
+    "audio_path": "audio/elements/iodine.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "xenon",
+    "iupac_name": "Xenon",
+    "formula": "Xe",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Xenon_discharge_tube.jpg/400px-Xenon_discharge_tube.jpg",
+    "audio_path": "audio/elements/xenon.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "cesium",
+    "iupac_name": "Cesium",
+    "formula": "Cs",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Cesium.jpg/400px-Cesium.jpg",
+    "audio_path": "audio/elements/cesium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "barium",
+    "iupac_name": "Barium",
+    "formula": "Ba",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Barium_unter_Argon_Schutzgas_Atmosph%C3%A4re.jpg/400px-Barium_unter_Argon_Schutzgas_Atmosph%C3%A4re.jpg",
+    "audio_path": "audio/elements/barium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "lanthanum",
+    "iupac_name": "Lanthanum",
+    "formula": "La",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Lanthanum-2.jpg/400px-Lanthanum-2.jpg",
+    "audio_path": "audio/elements/lanthanum.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "hafnium",
+    "iupac_name": "Hafnium",
+    "formula": "Hf",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Hf-crystal_bar.jpg/400px-Hf-crystal_bar.jpg",
+    "audio_path": "audio/elements/hafnium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "tantalum",
+    "iupac_name": "Tantalum",
+    "formula": "Ta",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Tantalum_single_crystal_and_1cm3_cube.jpg/400px-Tantalum_single_crystal_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/tantalum.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "tungsten",
+    "iupac_name": "Tungsten",
+    "formula": "W",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Wolfram_evaporated_crystals_and_1cm3_cube.jpg/400px-Wolfram_evaporated_crystals_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/tungsten.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "rhenium",
+    "iupac_name": "Rhenium",
+    "formula": "Re",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Rhenium_single_crystal_bar_and_1cm3_cube.jpg/400px-Rhenium_single_crystal_bar_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/rhenium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "osmium",
+    "iupac_name": "Osmium",
+    "formula": "Os",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmium_crystals.jpg/400px-Osmium_crystals.jpg",
+    "audio_path": "audio/elements/osmium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "iridium",
+    "iupac_name": "Iridium",
+    "formula": "Ir",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Iridium-2.jpg/400px-Iridium-2.jpg",
+    "audio_path": "audio/elements/iridium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "platinum",
+    "iupac_name": "Platinum",
+    "formula": "Pt",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Platinum_crystals.jpg/400px-Platinum_crystals.jpg",
+    "audio_path": "audio/elements/platinum.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "gold",
+    "iupac_name": "Gold",
+    "formula": "Au",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold-crystals.jpg/400px-Gold-crystals.jpg",
+    "audio_path": "audio/elements/gold.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "mercury",
+    "iupac_name": "Mercury",
+    "formula": "Hg",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Pouring_liquid_mercury_bionerd.jpg/400px-Pouring_liquid_mercury_bionerd.jpg",
+    "audio_path": "audio/elements/mercury.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "thallium",
+    "iupac_name": "Thallium",
+    "formula": "Tl",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Thallium_pieces_in_ampoule.jpg/400px-Thallium_pieces_in_ampoule.jpg",
+    "audio_path": "audio/elements/thallium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "lead",
+    "iupac_name": "Lead",
+    "formula": "Pb",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Lead_electrolytic_and_1cm3_cube.jpg/400px-Lead_electrolytic_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/lead.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "bismuth",
+    "iupac_name": "Bismuth",
+    "formula": "Bi",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Bismuth_crystals_and_1cm3_cube.jpg/400px-Bismuth_crystals_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/bismuth.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "polonium",
+    "iupac_name": "Polonium",
+    "formula": "Po",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Polonium.jpg/400px-Polonium.jpg",
+    "audio_path": "audio/elements/polonium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "astatine",
+    "iupac_name": "Astatine",
+    "formula": "At",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Astatine.jpg/400px-Astatine.jpg",
+    "audio_path": "audio/elements/astatine.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "radon",
+    "iupac_name": "Radon",
+    "formula": "Rn",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Radon_discharge_tube.jpg/400px-Radon_discharge_tube.jpg",
+    "audio_path": "audio/elements/radon.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "francium",
+    "iupac_name": "Francium",
+    "formula": "Fr",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Francium.jpg/400px-Francium.jpg",
+    "audio_path": "audio/elements/francium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "radium",
+    "iupac_name": "Radium",
+    "formula": "Ra",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Radium226.jpg/400px-Radium226.jpg",
+    "audio_path": "audio/elements/radium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "actinium",
+    "iupac_name": "Actinium",
+    "formula": "Ac",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Actinium_sample_%28center%29.jpg/400px-Actinium_sample_%28center%29.jpg",
+    "audio_path": "audio/elements/actinium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "cerium",
+    "iupac_name": "Cerium",
+    "formula": "Ce",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Cerium2.jpg/400px-Cerium2.jpg",
+    "audio_path": "audio/elements/cerium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "praseodymium",
+    "iupac_name": "Praseodymium",
+    "formula": "Pr",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Praseodymium.jpg/400px-Praseodymium.jpg",
+    "audio_path": "audio/elements/praseodymium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "neodymium",
+    "iupac_name": "Neodymium",
+    "formula": "Nd",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Neodymium2.jpg/400px-Neodymium2.jpg",
+    "audio_path": "audio/elements/neodymium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "promethium",
+    "iupac_name": "Promethium",
+    "formula": "Pm",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Promethium.jpg/400px-Promethium.jpg",
+    "audio_path": "audio/elements/promethium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "samarium",
+    "iupac_name": "Samarium",
+    "formula": "Sm",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Samarium-2.jpg/400px-Samarium-2.jpg",
+    "audio_path": "audio/elements/samarium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "europium",
+    "iupac_name": "Europium",
+    "formula": "Eu",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Europium.jpg/400px-Europium.jpg",
+    "audio_path": "audio/elements/europium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "gadolinium",
+    "iupac_name": "Gadolinium",
+    "formula": "Gd",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Gadolinium-4.jpg/400px-Gadolinium-4.jpg",
+    "audio_path": "audio/elements/gadolinium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "terbium",
+    "iupac_name": "Terbium",
+    "formula": "Tb",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Terbium-2.jpg/400px-Terbium-2.jpg",
+    "audio_path": "audio/elements/terbium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "dysprosium",
+    "iupac_name": "Dysprosium",
+    "formula": "Dy",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Dysprosium.jpg/400px-Dysprosium.jpg",
+    "audio_path": "audio/elements/dysprosium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "holmium",
+    "iupac_name": "Holmium",
+    "formula": "Ho",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Holmium2.jpg/400px-Holmium2.jpg",
+    "audio_path": "audio/elements/holmium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "erbium",
+    "iupac_name": "Erbium",
+    "formula": "Er",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Erbium-crop.jpg/400px-Erbium-crop.jpg",
+    "audio_path": "audio/elements/erbium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "thulium",
+    "iupac_name": "Thulium",
+    "formula": "Tm",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Thulium_sublimed_dendritic_and_1cm3_cube.jpg/400px-Thulium_sublimed_dendritic_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/thulium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "ytterbium",
+    "iupac_name": "Ytterbium",
+    "formula": "Yb",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Ytterbium-3.jpg/400px-Ytterbium-3.jpg",
+    "audio_path": "audio/elements/ytterbium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "lutetium",
+    "iupac_name": "Lutetium",
+    "formula": "Lu",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Lutetium_sublimed_dendritic_and_1cm3_cube.jpg/400px-Lutetium_sublimed_dendritic_and_1cm3_cube.jpg",
+    "audio_path": "audio/elements/lutetium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "thorium",
+    "iupac_name": "Thorium",
+    "formula": "Th",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Thorium_sample_0.1_gram.jpg/400px-Thorium_sample_0.1_gram.jpg",
+    "audio_path": "audio/elements/thorium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "protactinium",
+    "iupac_name": "Protactinium",
+    "formula": "Pa",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Protactinium.jpg/400px-Protactinium.jpg",
+    "audio_path": "audio/elements/protactinium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "uranium",
+    "iupac_name": "Uranium",
+    "formula": "U",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/HEUraniumC.jpg/400px-HEUraniumC.jpg",
+    "audio_path": "audio/elements/uranium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "neptunium",
+    "iupac_name": "Neptunium",
+    "formula": "Np",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Np_sphere.jpg/400px-Np_sphere.jpg",
+    "audio_path": "audio/elements/neptunium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "plutonium",
+    "iupac_name": "Plutonium",
+    "formula": "Pu",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Plutonium3.jpg/400px-Plutonium3.jpg",
+    "audio_path": "audio/elements/plutonium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "americium",
+    "iupac_name": "Americium",
+    "formula": "Am",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Americium_microscope.jpg/400px-Americium_microscope.jpg",
+    "audio_path": "audio/elements/americium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "curium",
+    "iupac_name": "Curium",
+    "formula": "Cm",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Curium.jpg/400px-Curium.jpg",
+    "audio_path": "audio/elements/curium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "berkelium",
+    "iupac_name": "Berkelium",
+    "formula": "Bk",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Berkelium.jpg/400px-Berkelium.jpg",
+    "audio_path": "audio/elements/berkelium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "californium",
+    "iupac_name": "Californium",
+    "formula": "Cf",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Californium.jpg/400px-Californium.jpg",
+    "audio_path": "audio/elements/californium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "einsteinium",
+    "iupac_name": "Einsteinium",
+    "formula": "Es",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Einsteinium.jpg/400px-Einsteinium.jpg",
+    "audio_path": "audio/elements/einsteinium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "fermium",
+    "iupac_name": "Fermium",
+    "formula": "Fm",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Fermium.jpg/400px-Fermium.jpg",
+    "audio_path": "audio/elements/fermium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "mendelevium",
+    "iupac_name": "Mendelevium",
+    "formula": "Md",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Mendelevium.jpg/400px-Mendelevium.jpg",
+    "audio_path": "audio/elements/mendelevium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "nobelium",
+    "iupac_name": "Nobelium",
+    "formula": "No",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Nobelium.jpg/400px-Nobelium.jpg",
+    "audio_path": "audio/elements/nobelium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "lawrencium",
+    "iupac_name": "Lawrencium",
+    "formula": "Lr",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Lawrencium.jpg/400px-Lawrencium.jpg",
+    "audio_path": "audio/elements/lawrencium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "rutherfordium",
+    "iupac_name": "Rutherfordium",
+    "formula": "Rf",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Rutherfordium.jpg/400px-Rutherfordium.jpg",
+    "audio_path": "audio/elements/rutherfordium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "dubnium",
+    "iupac_name": "Dubnium",
+    "formula": "Db",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Dubnium.jpg/400px-Dubnium.jpg",
+    "audio_path": "audio/elements/dubnium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "seaborgium",
+    "iupac_name": "Seaborgium",
+    "formula": "Sg",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Seaborgium.jpg/400px-Seaborgium.jpg",
+    "audio_path": "audio/elements/seaborgium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "bohrium",
+    "iupac_name": "Bohrium",
+    "formula": "Bh",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Bohrium.jpg/400px-Bohrium.jpg",
+    "audio_path": "audio/elements/bohrium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "hassium",
+    "iupac_name": "Hassium",
+    "formula": "Hs",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Hassium.jpg/400px-Hassium.jpg",
+    "audio_path": "audio/elements/hassium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "meitnerium",
+    "iupac_name": "Meitnerium",
+    "formula": "Mt",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Meitnerium.jpg/400px-Meitnerium.jpg",
+    "audio_path": "audio/elements/meitnerium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "darmstadtium",
+    "iupac_name": "Darmstadtium",
+    "formula": "Ds",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Darmstadtium.jpg/400px-Darmstadtium.jpg",
+    "audio_path": "audio/elements/darmstadtium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "roentgenium",
+    "iupac_name": "Roentgenium",
+    "formula": "Rg",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Roentgenium.jpg/400px-Roentgenium.jpg",
+    "audio_path": "audio/elements/roentgenium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "copernicium",
+    "iupac_name": "Copernicium",
+    "formula": "Cn",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Copernicium.jpg/400px-Copernicium.jpg",
+    "audio_path": "audio/elements/copernicium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "nihonium",
+    "iupac_name": "Nihonium",
+    "formula": "Nh",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Nihonium.jpg/400px-Nihonium.jpg",
+    "audio_path": "audio/elements/nihonium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "flerovium",
+    "iupac_name": "Flerovium",
+    "formula": "Fl",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Flerovium.jpg/400px-Flerovium.jpg",
+    "audio_path": "audio/elements/flerovium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "moscovium",
+    "iupac_name": "Moscovium",
+    "formula": "Mc",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Moscovium.jpg/400px-Moscovium.jpg",
+    "audio_path": "audio/elements/moscovium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "livermorium",
+    "iupac_name": "Livermorium",
+    "formula": "Lv",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Livermorium.jpg/400px-Livermorium.jpg",
+    "audio_path": "audio/elements/livermorium.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "tennessine",
+    "iupac_name": "Tennessine",
+    "formula": "Ts",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Tennessine.jpg/400px-Tennessine.jpg",
+    "audio_path": "audio/elements/tennessine.wav"
+  },
+  {
+    "type": "element",
+    "doc_id": "oganesson",
+    "iupac_name": "Oganesson",
+    "formula": "Og",
+    "image_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Oganesson.jpg/400px-Oganesson.jpg",
+    "audio_path": "audio/elements/oganesson.wav"
+  },
+  {
+    "type": "compound",
+    "doc_id": "acetic_acid",
+    "iupac_name": "Ethanoic acid",
+    "formula": "CH3COOH",
+    "image_path": "images/acetic_acid.png",
+    "audio_path": "audio/acetic_acid.wav"
+  },
+  {
+    "type": "compound",
+    "doc_id": "ethanol",
+    "iupac_name": "Ethanol",
+    "formula": "C2H5OH",
+    "image_path": "images/ethanol.png",
+    "audio_path": "audio/ethanol.wav"
+  },
+  {
+    "type": "compound",
+    "doc_id": "methane",
+    "iupac_name": "Methane",
+    "formula": "CH4",
+    "image_path": "images/methane.png",
+    "audio_path": "audio/methane.wav"
+  },
+  {
+    "type": "compound",
+    "doc_id": "ethene",
+    "iupac_name": "Ethene",
+    "formula": "C2H4",
+    "image_path": "images/ethene.png",
+    "audio_path": "audio/ethene.wav"
+  },
+  {
+    "type": "compound",
+    "doc_id": "ethyne",
+    "iupac_name": "Ethyne",
+    "formula": "C2H2",
+    "image_path": "images/ethyne.png",
+    "audio_path": "audio/ethyne.wav"
+  },
+  {
+    "type": "compound",
+    "doc_id": "ethyl_acetate",
+    "iupac_name": "Ethyl ethanoate",
+    "formula": "CH3COOC2H5",
+    "image_path": "images/ethyl_acetate.png",
+    "audio_path": "audio/ethyl_acetate.wav"
+  },
+  {
+    "type": "compound",
+    "doc_id": "sodium_chloride",
+    "iupac_name": "Sodium chloride",
+    "formula": "NaCl",
+    "image_path": "images/sodium_chloride.png",
+    "audio_path": "audio/sodium_chloride.wav"
+  }
+]

@@ -28,28 +28,33 @@ def extract_and_validate(state: AgentState) -> Dict[str, Any]:
     is_image_only = has_image and (not state.get("input_text") or query == "(hình ảnh)")
 
     if is_image_only:
-        prompt = """Bạn là chuyên gia nhận dạng cấu trúc phân tử.
+        prompt = """Bạn là chuyên gia nhận dạng cấu trúc phân tử, tuân thủ NGHIÊM NGẶT danh pháp IUPAC.
 
-Hãy phân tích hình cấu trúc phân tử, nhận dạng hợp chất, mở rộng search keywords.
+Phân tích hình cấu trúc phân tử và nhận dạng theo CHUẨN IUPAC quốc tế.
 
 Input: Hình cấu trúc phân tử
 
 Output:
-- search_query: Tên IUPAC + tên EN/VI + công thức (mở rộng từ hình)
-- is_valid: true nếu nhận dạng được, false nếu không
-- error_message: null hoặc lỗi nếu không nhận dạng được
+- search_query: Tên IUPAC quốc tế chính thức + công thức (VD: "Ethanol C2H6O" KHÔNG PHẢI "Rượu etylic")
+- is_valid: true nếu nhận dạng chính xác được
+- error_message: null hoặc mô tả lỗi
 """
     else:
-        prompt = f"""Bạn là chuyên gia danh pháp hóa học.
+        prompt = f"""Bạn là chuyên gia danh pháp IUPAC quốc tế.
 
-Hãy mở rộng query với keywords và kiểm tra tên/công thức IUPAC.
+Mở rộng query với keywords CHUẨN IUPAC và kiểm tra tính hợp lệ.
 
 Input: {query}
 
+Yêu cầu:
+- Chuyển tên thông thường sang tên IUPAC chuẩn (VD: "Rượu" → "Ethanol", "Metan" → "Methane")
+- Chuẩn hóa công thức (VD: "C2H5OH" → "Ethanol C2H6O")
+- Thêm ký hiệu nguyên tố nếu hỏi về nguyên tố (VD: "Hydro" → "Hydrogen H")
+
 Output:
-- search_query: Tên EN + VI + công thức (mở rộng)
-- is_valid: true nếu IUPAC đúng, false nếu sai
-- error_message: Gợi ý sửa nếu sai, null nếu đúng
+- search_query: Tên IUPAC quốc tế chính thức + công thức/ký hiệu
+- is_valid: true nếu tên/công thức hợp lệ hoặc có thể chuẩn hóa được
+- error_message: Gợi ý sửa nếu hoàn toàn sai, null nếu hợp lệ
 """
 
     # Call Gemini 2.5 Flash with structured output

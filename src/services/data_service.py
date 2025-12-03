@@ -17,9 +17,10 @@ class DataService:
     """Handles loading and retrieving compound data using TinyDB."""
 
     def __init__(self, db_path: str = "data/chemistry.json"):
+        # Use relative paths from project root (not absolute)
         self.data_dir = Path(os.getenv("DATA_DIR", "data"))
-        self.images_dir = Path(os.getenv("IMAGES_DIR", "data/images"))
-        self.audio_dir = Path(os.getenv("AUDIO_DIR", "data/audio"))
+        self.images_prefix = os.getenv("IMAGES_DIR", "data/images")
+        self.audio_prefix = os.getenv("AUDIO_DIR", "data/audio")
 
         self.db = TinyDB(db_path, sort_keys=True, indent=2)
         self.compounds = self.db.table('compounds')
@@ -37,12 +38,16 @@ class DataService:
             with open(compounds_file, "r", encoding="utf-8") as f:
                 compounds_data = json.load(f)
 
-            # Update paths to absolute paths
+            # Update paths to be relative from project root (data/images/..., data/audio/...)
             for compound in compounds_data:
                 if "image_path" in compound:
-                    compound["image_path"] = str(self.images_dir / Path(compound["image_path"]).name)
+                    # Convert "images/file.png" to "data/images/file.png"
+                    filename = Path(compound["image_path"]).name
+                    compound["image_path"] = f"{self.images_prefix}/{filename}"
                 if "audio_path" in compound:
-                    compound["audio_path"] = str(self.audio_dir / Path(compound["audio_path"]).name)
+                    # Convert "audio/file.wav" to "data/audio/file.wav"
+                    filename = Path(compound["audio_path"]).name
+                    compound["audio_path"] = f"{self.audio_prefix}/{filename}"
 
             if compounds_data:
                 self.compounds.insert_multiple(compounds_data)

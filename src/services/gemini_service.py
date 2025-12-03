@@ -26,7 +26,7 @@ class GeminiService:
             raise ValueError("GOOGLE_GEMINI_API_KEY environment variable not set")
 
         self.client = genai.Client(api_key=api_key)
-        self.model_name = os.getenv("GEMINI_LLM_MODEL", "gemini-2.5-flash")
+        self.model_name = os.getenv("GEMINI_LLM_MODEL", "gemini-2.5-flash-lite")
 
         # Cost optimization defaults
         self.max_output_tokens = int(os.getenv("GEMINI_MAX_OUTPUT_TOKENS", "1024"))
@@ -183,7 +183,7 @@ class GeminiService:
             )
             return response.parsed
         except Exception as e:
-            logger.error(f"Gemini API error - model: {model_name}, schema: {response_schema.__name__}, error: {str(e)}")
+            logger.error(f"Gemini API error - model: {model_name}, schema: {response_schema.__name__}, error: {str(e)}", exc_info=True)
             raise
 
 

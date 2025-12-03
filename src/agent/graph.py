@@ -20,11 +20,19 @@ def build_graph():
     """Build the chemistry chatbot graph with checkpointer.
 
     Workflow:
-        START → rephrase_query → check_relevance
-            ├─ if chemistry-related → extract_and_validate
-            │   ├─ if valid → retrieve_from_rag → generate_response → END
-            │   └─ if invalid → END (with error message)
-            └─ if not chemistry-related → END (with error message)
+        START → rephrase_query (handle "nó", "chất đó" with conversation context)
+              → check_relevance (chemistry-related?)
+                  ├─ if chemistry-related → extract_and_validate (expand keywords + validate)
+                  │                       → retrieve_from_rag (ALWAYS - hybrid search handles typos)
+                  │                       → generate_response (RAG for ID + LLM knowledge for answer)
+                  │                       → END
+                  └─ if not chemistry-related → END (with error message)
+
+    Key Features:
+    - Conversational: Uses conversation history to resolve pronouns ("nó" → "Hidro")
+    - Flexible: Always proceeds to RAG retrieval (fuzzy search handles typos/variations)
+    - Knowledge-based: Uses RAG to identify compound, LLM knowledge to answer questions
+    - Minimal database: Only stores name, formula, type, image/audio paths (118 elements + 7 compounds)
 
     Returns:
         Compiled graph with MemorySaver checkpointer for conversation history

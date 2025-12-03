@@ -24,8 +24,10 @@ def check_validity_route(state: AgentState) -> str:
         state: Current agent state
 
     Returns:
-        "retrieve" if valid, "end" if invalid
+        "retrieve" always - let RAG fuzzy search handle invalid/typo cases
     """
-    if state.get("is_valid", False):
-        return "retrieve"
-    return "end"
+    # Always proceed to retrieve - hybrid search can handle:
+    # - Typos (fuzzy matching via dense vectors)
+    # - Alternative formulas (BM25 sparse matching)
+    # - Invalid names (LLM will explain in final response)
+    return "retrieve"
