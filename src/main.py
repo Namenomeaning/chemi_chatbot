@@ -21,7 +21,6 @@ from dotenv import load_dotenv
 from src.core.logging import setup_logging
 from src.agent.graph import graph
 from src.agent.state import AgentState
-from src.services import embedding_service
 
 load_dotenv(override=True)
 logger = setup_logging(__name__)
@@ -49,14 +48,8 @@ class QueryResponse(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup and shutdown events."""
-    # Startup: Load models
-    logger.info("FastAPI startup: Loading embedding model...")
-    try:
-        embedding_service.load_model()
-        logger.info(f"✓ Embedding model loaded (dim: {embedding_service.embedding_dim})")
-    except Exception as e:
-        logger.error(f"Failed to load embedding model: {str(e)}")
-        raise
+    # Startup: Initialize keyword search service
+    logger.info("FastAPI startup: Using keyword-based search (no embedding model needed)")
 
     yield
 
