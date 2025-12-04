@@ -56,9 +56,7 @@ Thumbs.db
 .ipynb_checkpoints/
 *.ipynb
 
-# Generated audio files (keep directory structure)
-data/audio/*.wav
-data/audio/*.mp3
+
 
 # Model files (large files, download separately)
 models/tts/*.onnx

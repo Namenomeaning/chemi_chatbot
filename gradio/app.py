@@ -244,6 +244,19 @@ def bot_response(history):
             }
             response = requests.post(API_URL, json=payload, timeout=60)
 
+        # Debug: Check response status and content
+        if response.status_code != 200:
+            history.append({"role": "assistant", "content": f"❌ **API Error (HTTP {response.status_code}):**\n```\n{response.text[:500]}\n```\n\n💡 Kiểm tra FastAPI backend đang chạy tại: `{BASE_URL}`"})
+            yield history
+            return
+
+        # Check if response is JSON
+        content_type = response.headers.get("content-type", "")
+        if "application/json" not in content_type:
+            history.append({"role": "assistant", "content": f"❌ **API không trả về JSON** (Content-Type: {content_type})\n\n💡 Kiểm tra:\n1. FastAPI backend chạy chưa?\n2. Port 8000 đã public chưa? (Codespaces)\n3. API URL: `{BASE_URL}`"})
+            yield history
+            return
+
         result = response.json()
 
         # Store thread_id from response for next request
@@ -353,6 +366,13 @@ if __name__ == "__main__":
     print("🧪 CHEMI - Chemistry Chatbot")
     print("="*80)
     print(f"🌐 API Backend: {BASE_URL}")
+    print(f"   - Query endpoint: {API_URL}")
+    print(f"   - Upload endpoint: {API_URL_UPLOAD}")
+    print("")
+    print("⚠️  Trên GitHub Codespaces:")
+    print("   1. Chạy FastAPI: uv run uvicorn main:app --host 0.0.0.0 --port 8000")
+    print("   2. Set port 8000 visibility = Public")
+    print("="*80)
     print("🚀 Starting Gradio Interface...")
     print("="*80 + "\n")
 
