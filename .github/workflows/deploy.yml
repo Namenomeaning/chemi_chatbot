@@ -1,0 +1,89 @@
+name: Deploy to AWS App Runner
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: chemistry-chatbot
+  APP_RUNNER_SERVICE: chemistry-chatbot
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build Docker image
+          docker build -f Dockerfile.apprunner -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          # Push both tags
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Update App Runner service
+        run: |
+          # Get the service ARN
+          SERVICE_ARN=$(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='${{ env.APP_RUNNER_SERVICE }}'].ServiceArn" --output text)
+
+          if [ -z "$SERVICE_ARN" ]; then
+            echo "App Runner service not found. Please create it first."
+            exit 1
+          fi
+
+          # Trigger a new deployment
+          aws apprunner start-deployment --service-arn $SERVICE_ARN
+
+          echo "Deployment triggered for service: $SERVICE_ARN"
+
+      - name: Wait for deployment
+        run: |
+          SERVICE_ARN=$(aws apprunner list-services --query "ServiceSummaryList[?ServiceName=='${{ env.APP_RUNNER_SERVICE }}'].ServiceArn" --output text)
+
+          echo "Waiting for deployment to complete..."
+
+          # Wait up to 10 minutes for deployment
+          for i in {1..60}; do
+            STATUS=$(aws apprunner describe-service --service-arn $SERVICE_ARN --query "Service.Status" --output text)
+            echo "Status: $STATUS"
+
+            if [ "$STATUS" = "RUNNING" ]; then
+              echo "Deployment successful!"
+              SERVICE_URL=$(aws apprunner describe-service --service-arn $SERVICE_ARN --query "Service.ServiceUrl" --output text)
+              echo "Service URL: https://$SERVICE_URL"
+              exit 0
+            elif [ "$STATUS" = "CREATE_FAILED" ] || [ "$STATUS" = "DELETE_FAILED" ]; then
+              echo "Deployment failed with status: $STATUS"
+              exit 1
+            fi
+
+            sleep 10
+          done
+
+          echo "Deployment timed out"
+          exit 1

@@ -1,82 +1,132 @@
-"""LangGraph workflow for chemistry chatbot."""
+"""Simplified LangGraph workflow using ReAct agent with tools."""
 
-from langgraph.graph import StateGraph, END
+import os
+from typing import Optional
+from dotenv import load_dotenv
+from pydantic import BaseModel, Field
+
+from langchain.agents import create_agent
 from langgraph.checkpoint.memory import MemorySaver
+from langchain_openai import ChatOpenAI
 
-from .state import AgentState
-from .nodes import (
-    rephrase_query,
-    check_relevance,
-    extract_and_validate,
-    retrieve_from_rag,
-    generate_response,
-    check_relevance_route,
-    check_validity_route
-)
+from .tools import search_compound, generate_isomers
+from ..core.logging import setup_logging
+
+load_dotenv()
+logger = setup_logging(__name__)
 
 
-def build_graph():
-    """Build the chemistry chatbot graph with checkpointer.
+# Structured output schema
+class ChemistryResponse(BaseModel):
+    """Structured response from chemistry chatbot."""
 
-    Workflow:
-        START → rephrase_query (handle "nó", "chất đó" with conversation context)
-              → check_relevance (chemistry-related?)
-                  ├─ if chemistry-related → extract_and_validate (expand keywords + classify needs_rag)
-                  │                           ├─ if needs_rag=True → retrieve_from_rag → generate_response → END
-                  │                           └─ if needs_rag=False → generate_response (LLM direct) → END
-                  └─ if not chemistry-related → END (with error message)
+    text_response: str = Field(
+        description="Câu trả lời đầy đủ cho học sinh (markdown format)"
+    )
+    image_url: Optional[str] = Field(
+        default=None,
+        description="URL hình ảnh cấu trúc (lấy từ image_path trong kết quả search_compound)"
+    )
+    audio_url: Optional[str] = Field(
+        default=None,
+        description="URL audio phát âm (lấy từ audio_path trong kết quả search_compound)"
+    )
 
-    Key Features:
-    - Conversational: Uses conversation history to resolve pronouns ("nó" → "Hidro")
-    - Smart routing: RAG for specific compound queries, LLM direct for general knowledge
-    - Knowledge-based: Uses RAG to identify compound + get image/audio, LLM for answers
+# System prompt in Vietnamese for Grade 11 chemistry tutor
+SYSTEM_PROMPT = """Bạn là CHEMI - gia sư Hóa học thân thiện, giúp học sinh lớp 11 Việt Nam học danh pháp IUPAC quốc tế.
+
+## CÁC TOOL:
+
+**1. search_compound(query)**: Tìm kiếm thông tin hợp chất trong cơ sở dữ liệu
+- Input: tên IUPAC, tên thông thường, công thức, hoặc ký hiệu
+- Output: JSON chứa TẤT CẢ thông tin về chất:
+  - doc_id, iupac_name, formula, type
+  - image_path: URL hình ảnh (nếu có)
+  - audio_path: đường dẫn audio phát âm (nếu có)
+
+**2. generate_isomers(smiles)**: Tạo danh sách đồng phân lập thể từ SMILES
+- Input: smiles - Cấu trúc SMILES (VD: "CC=CC" cho but-2-ene, "CC(O)CC" cho butan-2-ol)
+- Output: JSON chứa danh sách đồng phân với SMILES, stereo_type và **image_path** (ảnh grid các đồng phân)
+
+## QUY TẮC:
+1. Khi học sinh hỏi về hợp chất/nguyên tố CỤ THỂ → GỌI search_compound() để lấy thông tin
+2. Khi học sinh hỏi về ĐỒNG PHÂN → GỌI generate_isomers() với SMILES của chất đó
+3. Sử dụng image_path và audio_path từ kết quả để trả về trong structured output
+4. Với câu hỏi kiến thức CHUNG (so sánh, liệt kê, lý thuyết) → trả lời trực tiếp
+
+## PHONG CÁCH TRẢ LỜI:
+1. **Tên IUPAC**: Luôn dùng tên quốc tế + phiên âm tiếng Việt
+   - Ví dụ: "Hydrogen (hai-đờ-rô-giần)", "Ethanol (ét-thờ-nol)"
+
+2. **Sửa tên tiếng Việt nhẹ nhàng**:
+   - "À, theo chuẩn IUPAC quốc tế thì mình gọi là **Sodium** nhé!"
+
+3. **Gợi ý tiếp theo**: Cuối mỗi câu trả lời
+   - "🤔 Bạn muốn tìm hiểu thêm về [gợi ý] không?"
+
+## OUTPUT FORMAT:
+Trả về structured output với:
+- text_response: Câu trả lời đầy đủ (markdown)
+- image_url: Lấy từ image_path của search_compound (hoặc null nếu không có)
+- audio_url: Lấy từ audio_path của search_compound (hoặc null nếu không có)
+"""
+
+
+# Global instances (lazy loaded)
+_agent = None
+_memory = None
+
+
+def get_memory():
+    """Get or create the memory checkpointer (singleton)."""
+    global _memory
+    if _memory is None:
+        _memory = MemorySaver()
+    return _memory
+
+
+def build_agent():
+    """Build the chemistry chatbot agent with tools and memory.
 
     Returns:
-        Compiled graph with MemorySaver checkpointer for conversation history
+        Compiled ReAct agent with MemorySaver checkpointer
     """
-    # Initialize graph
-    workflow = StateGraph(AgentState)
+    global _agent
 
-    # Add nodes (2 Flash Lite nodes split from original Node 0)
-    workflow.add_node("rephrase_query", rephrase_query)
-    workflow.add_node("check_relevance", check_relevance)
-    workflow.add_node("extract_and_validate", extract_and_validate)
-    workflow.add_node("retrieve_from_rag", retrieve_from_rag)
-    workflow.add_node("generate_response", generate_response)
+    if _agent is not None:
+        return _agent
 
-    # Set entry point
-    workflow.set_entry_point("rephrase_query")
+    # Initialize LLM (OpenAI-compatible API)
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = os.getenv("OPENAI_BASE_URL", "https://gpt3.shupremium.com/v1")
+    model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-    # Add normal edge from rephrase to relevance check
-    workflow.add_edge("rephrase_query", "check_relevance")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY not found in environment")
 
-    # Add conditional edges
-    workflow.add_conditional_edges(
-        "check_relevance",
-        check_relevance_route,
-        {
-            "extract": "extract_and_validate",
-            "end": END
-        }
+    llm = ChatOpenAI(
+        model=model_name,
+        api_key=api_key,
+        base_url=base_url,
+        temperature=0.3,
     )
 
-    workflow.add_conditional_edges(
-        "extract_and_validate",
-        check_validity_route,
-        {
-            "retrieve": "retrieve_from_rag",
-            "generate": "generate_response"  # Skip RAG for general knowledge queries
-        }
+    # Tools list
+    tools = [search_compound, generate_isomers]
+
+    # Create agent with shared memory and structured output (LangChain 1.0 API)
+    _agent = create_agent(
+        model=llm,
+        tools=tools,
+        checkpointer=get_memory(),
+        system_prompt=SYSTEM_PROMPT,
+        response_format=ChemistryResponse,
     )
 
-    # Add normal edges
-    workflow.add_edge("retrieve_from_rag", "generate_response")
-    workflow.add_edge("generate_response", END)
-
-    # Compile with checkpointer for conversation history
-    checkpointer = MemorySaver()
-    return workflow.compile(checkpointer=checkpointer)
+    logger.info("Chemistry agent built with ReAct pattern and memory")
+    return _agent
 
 
-# Create global graph instance
-graph = build_graph()
+def get_agent():
+    """Get the agent instance (lazy loading)."""
+    return build_agent()

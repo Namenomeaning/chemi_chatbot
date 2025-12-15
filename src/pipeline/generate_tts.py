@@ -1,120 +1,134 @@
-"""Generate TTS audio files for all elements and compounds using Gemini 2.5 Flash TTS."""
+"""Generate TTS audio files for chemistry compounds using Piper (local/offline).
+
+Usage:
+    uv run src/pipeline/generate_tts.py [--force]
+
+Requirements:
+    1. Download Piper: https://github.com/rhasspy/piper/releases
+    2. Download voice model (en_US-lessac-medium recommended)
+    3. Set PIPER_BIN and PIPER_MODEL in .env
+
+This reads chemistry_data.json, generates audio for items without audio files.
+Run upload_to_s3.py after to sync to S3.
+"""
 
 import json
 import os
+import subprocess
 from pathlib import Path
+
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
-import wave
-import time
 
 load_dotenv()
 
-# Paths
-DATA_FILE = Path(__file__).parent.parent / "data" / "chemistry_data.json"
-AUDIO_DIR = Path(__file__).parent.parent / "data" / "audio"
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+JSON_FILE = DATA_DIR / "chemistry_data.json"
 
-# Initialize Gemini client
-api_key = os.getenv("GOOGLE_GEMINI_API_KEY")
-if not api_key:
-    raise ValueError("GOOGLE_GEMINI_API_KEY not found in environment")
-client = genai.Client(api_key=api_key)
+# Audio output directories
+COMPOUNDS_AUDIO = DATA_DIR / "compounds" / "audio"
+ELEMENTS_AUDIO = DATA_DIR / "elements" / "audio"
 
-# Helper function to save wave file
-def wave_file(filename, pcm, channels=1, rate=24000, sample_width=2):
-    with wave.open(filename, "wb") as wf:
-        wf.setnchannels(channels)
-        wf.setsampwidth(sample_width)
-        wf.setframerate(rate)
-        wf.writeframes(pcm)
+# Piper configuration
+PIPER_BIN = os.getenv("PIPER_BIN", "/usr/local/bin/piper")
+PIPER_MODEL = os.getenv("PIPER_MODEL", str(PROJECT_ROOT / "models" / "en_US-lessac-medium.onnx"))
 
-# Load all data
-print(f"Loading chemistry data from {DATA_FILE}...")
-with open(DATA_FILE, "r", encoding="utf-8") as f:
-    data = json.load(f)
 
-print(f"Found {len(data)} items ({sum(1 for x in data if x['type']=='element')} elements, {sum(1 for x in data if x['type']=='compound')} compounds)\n")
+def generate_audio(text: str, output_path: Path) -> bool:
+    """Generate TTS audio using Piper."""
+    cmd = [PIPER_BIN, "--model", PIPER_MODEL, "--output_file", str(output_path)]
 
-# Create audio directories
-AUDIO_DIR.mkdir(parents=True, exist_ok=True)
-(AUDIO_DIR / "elements").mkdir(exist_ok=True)
+    result = subprocess.run(
+        cmd,
+        input=text,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
 
-# Statistics
-total = len(data)
-generated = 0
-skipped = 0
-failed = 0
+    return result.returncode == 0 and output_path.exists()
 
-# Process all items
-for idx, item in enumerate(data, 1):
-    doc_id = item["doc_id"]
-    item_type = item["type"]
 
-    # Get pronunciation text
-    if item_type == "element":
-        # Elements: use iupac_name (English name)
-        text_to_speak = item["iupac_name"]
-        audio_filename = f"{doc_id}.wav"
-        audio_path = AUDIO_DIR / "elements" / audio_filename
-    else:  # compound
-        # Compounds: use iupac_name
-        text_to_speak = item.get("iupac_name", item["common_names"][0])
-        audio_filename = f"{doc_id}.wav"
-        audio_path = AUDIO_DIR / audio_filename
+def main():
+    import argparse
 
-    # Skip if already exists
-    if audio_path.exists():
-        print(f"[{idx}/{total}] ⏭️  Skipping {text_to_speak} (already exists)")
-        skipped += 1
-        continue
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--force", action="store_true", help="Regenerate all audio")
+    args = parser.parse_args()
 
-    # Generate TTS using Gemini
-    try:
-        print(f"[{idx}/{total}] 🎤 Generating: {text_to_speak} ({item_type})...", end=" ", flush=True)
+    # Verify Piper
+    if not Path(PIPER_BIN).exists():
+        print(f"Error: Piper not found at {PIPER_BIN}")
+        print("Download from: https://github.com/rhasspy/piper/releases")
+        return 1
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash-preview-tts",
-            contents=text_to_speak,
-            config=types.GenerateContentConfig(
-                response_modalities=["AUDIO"],
-                speech_config=types.SpeechConfig(
-                    voice_config=types.VoiceConfig(
-                        prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                            voice_name='Kore',  # Clear American English voice
-                        )
-                    )
-                ),
-            )
-        )
+    if not Path(PIPER_MODEL).exists():
+        print(f"Error: Piper model not found at {PIPER_MODEL}")
+        print("Download en_US-lessac-medium.onnx from Piper releases")
+        return 1
 
-        # Extract and save audio
-        audio_data = response.candidates[0].content.parts[0].inline_data.data
-        wave_file(str(audio_path), audio_data)
+    # Create directories
+    COMPOUNDS_AUDIO.mkdir(parents=True, exist_ok=True)
+    ELEMENTS_AUDIO.mkdir(parents=True, exist_ok=True)
 
-        file_size = audio_path.stat().st_size / 1024  # KB
-        print(f"✓ ({file_size:.1f} KB)")
-        generated += 1
+    # Load data
+    print(f"Loading {JSON_FILE}...")
+    with open(JSON_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-        # Rate limit: 3 requests per minute (20 seconds between requests)
-        # For safety, use 21 seconds
-        if idx < total:  # Don't wait after last item
-            time.sleep(21)
+    print(f"Found {len(data)} items")
+    print(f"Piper: {PIPER_BIN}")
+    print(f"Model: {PIPER_MODEL}\n")
 
-    except Exception as e:
-        print(f"❌ Error: {str(e)}")
-        failed += 1
-        # Wait a bit before retrying next item
-        time.sleep(5)
+    generated = 0
+    skipped = 0
+    failed = 0
 
-# Summary
-print(f"\n{'='*60}")
-print(f"TTS Generation Summary:")
-print(f"  ✓ Generated: {generated}/{total}")
-print(f"  ⏭️  Skipped: {skipped}/{total}")
-print(f"  ❌ Failed: {failed}/{total}")
-print(f"\nAudio files saved to:")
-print(f"  - Elements: {AUDIO_DIR / 'elements'}/*.wav")
-print(f"  - Compounds: {AUDIO_DIR}/*.wav")
-print(f"\nEstimated time: {generated * 21 / 60:.1f} minutes")
-print("Done!")
+    for idx, item in enumerate(data, 1):
+        doc_id = item["doc_id"]
+        item_type = item["type"]
+        name = item["iupac_name"]
+
+        # Determine output path
+        if item_type == "element":
+            audio_path = ELEMENTS_AUDIO / f"{doc_id}.wav"
+        else:
+            audio_path = COMPOUNDS_AUDIO / f"{doc_id}.wav"
+
+        # Skip if exists (unless --force)
+        if audio_path.exists() and not args.force:
+            print(f"[{idx}/{len(data)}] ⏭️  {name} (exists)")
+            skipped += 1
+            continue
+
+        # Generate TTS
+        try:
+            print(f"[{idx}/{len(data)}] 🎤 {name}...", end=" ", flush=True)
+
+            if generate_audio(name, audio_path):
+                size_kb = audio_path.stat().st_size / 1024
+                print(f"✓ ({size_kb:.1f} KB)")
+                generated += 1
+            else:
+                print("❌ Failed")
+                failed += 1
+
+        except subprocess.TimeoutExpired:
+            print("❌ Timeout")
+            failed += 1
+        except Exception as e:
+            print(f"❌ {e}")
+            failed += 1
+
+    print(f"\n{'='*50}")
+    print(f"Generated: {generated}, Skipped: {skipped}, Failed: {failed}")
+    print(f"\nAudio files in:")
+    print(f"  - {COMPOUNDS_AUDIO}")
+    print(f"  - {ELEMENTS_AUDIO}")
+    print(f"\nNext: Run upload_to_s3.py to sync to S3")
+
+    return 0
+
+
+if __name__ == "__main__":
+    exit(main())

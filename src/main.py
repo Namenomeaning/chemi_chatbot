@@ -1,6 +1,7 @@
-"""FastAPI backend for chemistry chatbot."""
+"""FastAPI backend for chemistry chatbot (simplified with ReAct agent)."""
 
 import os
+import json
 import sys
 from pathlib import Path
 
@@ -9,22 +10,45 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import base64
-import requests
 from contextlib import asynccontextmanager
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+from langchain_core.messages import HumanMessage
 
 from src.core.logging import setup_logging
-from src.agent.graph import graph
-from src.agent.state import AgentState
+from src.agent import get_agent
 
 load_dotenv(override=True)
 logger = setup_logging(__name__)
+
+
+def parse_structured_response(content: str) -> Tuple[str, Optional[str], Optional[str]]:
+    """Parse structured JSON response from agent.
+
+    The agent returns JSON with: text_response, image_url, audio_url
+
+    Args:
+        content: JSON string or plain text from agent
+
+    Returns:
+        Tuple of (text_response, image_url, audio_url)
+    """
+    try:
+        # Try to parse as JSON (structured output)
+        data = json.loads(content)
+        text_response = data.get("text_response", content)
+        image_url = data.get("image_url")
+        audio_url = data.get("audio_url")
+        return text_response, image_url, audio_url
+    except (json.JSONDecodeError, TypeError):
+        # Fallback: treat as plain text (no media)
+        logger.debug("Response is not JSON, treating as plain text")
+        return content, None, None
 
 
 def file_or_url_to_base64(file_path: Optional[str]) -> Optional[str]:
@@ -39,20 +63,17 @@ def file_or_url_to_base64(file_path: Optional[str]) -> Optional[str]:
     if not file_path:
         return None
 
-    # If it's a URL, return it directly (no need to encode)
-    if file_path.startswith(("http://", "https://")):
+    # If it's a URL, return it directly
+    if file_path.startswith(("http://", "https://", "data:")):
         return file_path
 
     try:
-        # Get project root
         base_dir = Path(__file__).parent.parent
-
-        # Try to resolve path (handle both absolute and relative paths)
         full_path = Path(file_path)
+
         if not full_path.is_absolute():
             full_path = base_dir / file_path
 
-        # If file doesn't exist, try with data/ prefix
         if not full_path.exists():
             full_path = base_dir / "data" / file_path
 
@@ -60,7 +81,6 @@ def file_or_url_to_base64(file_path: Optional[str]) -> Optional[str]:
             logger.warning(f"File not found: {file_path}")
             return None
 
-        # Read and encode local file
         with open(full_path, "rb") as f:
             return base64.b64encode(f.read()).decode("utf-8")
 
@@ -91,20 +111,16 @@ class QueryResponse(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for startup and shutdown events."""
-    # Startup: Initialize keyword search service
-    logger.info("FastAPI startup: Using keyword-based search (no embedding model needed)")
-
+    logger.info("FastAPI startup: Chemistry chatbot with ReAct agent ready")
     yield
-
-    # Shutdown: Cleanup if needed
     logger.info("FastAPI shutdown: Cleaning up...")
 
 
 # FastAPI app
 app = FastAPI(
     title="Chemistry Chatbot API",
-    description="LangGraph-powered chemistry chatbot",
-    version="1.0.0",
+    description="ReAct agent-powered chemistry chatbot for Grade 11 students",
+    version="2.0.0",
     lifespan=lifespan
 )
 
@@ -121,94 +137,83 @@ app.add_middleware(
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {"status": "ok", "version": "1.0.0"}
+    return {"status": "ok", "version": "2.0.0", "agent": "ReAct"}
 
 
 @app.post("/query", response_model=QueryResponse)
 async def query_chemistry(request: QueryRequest):
-    """Main query endpoint.
+    """Main query endpoint using ReAct agent.
 
     Args:
         request: QueryRequest with text, image_base64, thread_id
 
     Returns:
-        QueryResponse with success, thread_id, text_response, image_path, audio_path, error, metadata
+        QueryResponse with text_response, image, audio
     """
     try:
-        # Validate input
         if not request.text and not request.image_base64:
             raise HTTPException(status_code=400, detail="Either text or image_base64 required")
 
-        # Generate thread_id if not provided
         thread_id = request.thread_id or f"thread-{os.urandom(8).hex()}"
 
-        logger.info(f"Query received - thread_id: {thread_id}, has_text: {bool(request.text)}, has_image: {bool(request.image_base64)}")
+        logger.info(f"Query received - thread_id: {thread_id}, text: {request.text[:50] if request.text else 'None'}...")
 
-        # Decode image if provided
-        image_bytes = None
+        # Build message content
+        content = []
+        if request.text:
+            content.append({"type": "text", "text": request.text})
+
         if request.image_base64:
             try:
-                image_bytes = base64.b64decode(request.image_base64)
+                content.append({
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{request.image_base64}"}
+                })
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Invalid base64: {str(e)}")
 
-        # Prepare state
-        initial_state = AgentState(
-            input_text=request.text,
-            input_image=image_bytes
+        # Invoke agent
+        config = {"configurable": {"thread_id": thread_id}}
+        result = get_agent().invoke(
+            {"messages": [HumanMessage(content=content if len(content) > 1 else request.text)]},
+            config
         )
 
-        # Invoke graph
-        config = {"configurable": {"thread_id": thread_id}}
-        result = graph.invoke(initial_state, config)
-
-        # Check for errors
-        error_message = result.get("error_message")
-        if error_message:
-            logger.warning(f"Query failed - thread_id: {thread_id}, error: {error_message}")
-            return QueryResponse(
-                success=False,
-                thread_id=thread_id,
-                error=error_message,
-                metadata={
-                    "rephrased_query": result.get("rephrased_query", ""),
-                    "is_chemistry_related": result.get("is_chemistry_related", False),
-                    "is_valid": result.get("is_valid", False)
-                }
-            )
-
-        # Extract response
-        final_response = result.get("final_response", {})
-        if not final_response:
+        # Extract response text from last AI message
+        messages = result.get("messages", [])
+        if not messages:
             return QueryResponse(
                 success=False,
                 thread_id=thread_id,
                 error="No response generated"
             )
 
-        logger.info(f"Query succeeded - thread_id: {thread_id}, rag_docs: {len(result.get('rag_context', []))}")
+        # Get last AI message
+        last_message = messages[-1]
+        response_content = last_message.content if hasattr(last_message, 'content') else str(last_message)
 
-        # Convert file paths to base64 or keep URLs as-is
-        image_base64 = file_or_url_to_base64(final_response.get("image_path"))
-        audio_base64 = file_or_url_to_base64(final_response.get("audio_path"))
+        # Parse structured JSON response
+        text_response, image_url, audio_url = parse_structured_response(response_content)
+
+        # Convert to base64 if local files
+        image_base64 = file_or_url_to_base64(image_url)
+        audio_base64 = file_or_url_to_base64(audio_url)
+
+        logger.info(f"Query succeeded - thread_id: {thread_id}, has_image: {bool(image_url)}, has_audio: {bool(audio_url)}")
 
         return QueryResponse(
             success=True,
             thread_id=thread_id,
-            text_response=final_response.get("text_response", ""),
+            text_response=text_response,
             image_base64=image_base64,
             audio_base64=audio_base64,
-            metadata={
-                "rephrased_query": result.get("rephrased_query", ""),
-                "search_query": result.get("search_query", ""),
-                "rag_docs_count": len(result.get("rag_context", []))
-            }
+            metadata={"message_count": len(messages)}
         )
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Query exception - thread_id: {thread_id if 'thread_id' in locals() else 'unknown'}, error: {str(e)}")
+        logger.error(f"Query exception - error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -218,7 +223,7 @@ async def query_with_upload(
     image: Optional[UploadFile] = File(None),
     thread_id: Optional[str] = Form(None)
 ):
-    """Query endpoint with file upload (no base64 needed).
+    """Query endpoint with file upload.
 
     Args:
         text: Text query
@@ -229,77 +234,66 @@ async def query_with_upload(
         QueryResponse
     """
     try:
-        # Validate input - check for meaningful text or image
         has_text = text and text.strip()
         has_image = image is not None
-        
+
         if not has_text and not has_image:
             raise HTTPException(status_code=400, detail="Either text or image required")
 
-        # Generate thread_id if not provided
         thread_id = thread_id or f"thread-{os.urandom(8).hex()}"
 
-        # Read image
-        image_bytes = None
-        if image:
-            image_bytes = await image.read()
+        # Build message content
+        content = []
+        if has_text:
+            content.append({"type": "text", "text": text})
 
-        # Prepare state
-        initial_state = AgentState(
-            input_text=text,
-            input_image=image_bytes
+        if has_image:
+            image_bytes = await image.read()
+            image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+            content.append({
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{image_b64}"}
+            })
+
+        # Invoke agent
+        config = {"configurable": {"thread_id": thread_id}}
+        result = get_agent().invoke(
+            {"messages": [HumanMessage(content=content if len(content) > 1 else text)]},
+            config
         )
 
-        # Invoke graph
-        config = {"configurable": {"thread_id": thread_id}}
-        result = graph.invoke(initial_state, config)
-
-        # Check errors
-        error_message = result.get("error_message")
-        if error_message:
-            return QueryResponse(
-                success=False,
-                thread_id=thread_id,
-                error=error_message,
-                metadata={
-                    "rephrased_query": result.get("rephrased_query", ""),
-                    "is_chemistry_related": result.get("is_chemistry_related", False),
-                    "is_valid": result.get("is_valid", False)
-                }
-            )
-
         # Extract response
-        final_response = result.get("final_response", {})
-        if not final_response:
+        messages = result.get("messages", [])
+        if not messages:
             return QueryResponse(
                 success=False,
                 thread_id=thread_id,
                 error="No response generated"
             )
 
-        logger.info(f"Query succeeded - thread_id: {thread_id}, rag_docs: {len(result.get('rag_context', []))}")
+        last_message = messages[-1]
+        response_content = last_message.content if hasattr(last_message, 'content') else str(last_message)
 
-        # Convert file paths to base64 or keep URLs as-is
-        image_base64 = file_or_url_to_base64(final_response.get("image_path"))
-        audio_base64 = file_or_url_to_base64(final_response.get("audio_path"))
+        # Parse structured JSON response
+        text_response, image_url, audio_url = parse_structured_response(response_content)
+        image_base64 = file_or_url_to_base64(image_url)
+        audio_base64 = file_or_url_to_base64(audio_url)
+
+        logger.info(f"Query succeeded - thread_id: {thread_id}")
 
         return QueryResponse(
             success=True,
             thread_id=thread_id,
-            text_response=final_response.get("text_response", ""),
+            text_response=text_response,
             image_base64=image_base64,
             audio_base64=audio_base64,
-            metadata={
-                "rephrased_query": result.get("rephrased_query", ""),
-                "search_query": result.get("search_query", ""),
-                "rag_docs_count": len(result.get("rag_context", []))
-            }
+            metadata={"message_count": len(messages)}
         )
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Query exception - thread_id: {thread_id if 'thread_id' in locals() else 'unknown'}, error: {str(e)}")
+        logger.error(f"Query exception - error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -308,19 +302,15 @@ async def serve_file(file_path: str):
     """Serve static files (images, audio).
 
     Args:
-        file_path: Relative path (e.g., "images/ethanol.png" or "data/images/ethanol.png")
+        file_path: Relative path
 
     Returns:
         FileResponse
     """
     try:
-        # Get project root (parent of src/)
         base_dir = Path(__file__).parent.parent
-
-        # Try with data/ prefix first (current structure)
         full_path = base_dir / "data" / file_path
 
-        # Security check
         if not full_path.resolve().is_relative_to(base_dir.resolve()):
             raise HTTPException(status_code=403, detail="Access denied")
 

@@ -1,36 +1,33 @@
-"""Agent state definition using MessagesState."""
+"""Simplified agent state - ReAct agent manages state internally."""
 
-from typing import Optional, List, Dict, Any, Annotated
-from typing_extensions import TypedDict
-from langgraph.graph import add_messages
+# Note: With create_react_agent, the state is managed automatically.
+# This file is kept for backwards compatibility and potential future extensions.
 
+from typing import Optional, Dict, Any
 
-class AgentState(TypedDict):
-    """State for the chemistry chatbot agent.
+# Response type for API/UI consumption
+class ChatResponse:
+    """Response from the chemistry chatbot.
 
-    Uses LangGraph's MessagesState pattern with add_messages reducer
-    for automatic conversation history management.
+    Attributes:
+        text: The text response from the agent
+        image_url: Optional URL/path to compound structure image
+        audio_url: Optional URL/path to pronunciation audio
     """
 
-    # Conversation history (managed by add_messages reducer)
-    messages: Annotated[List[Dict[str, Any]], add_messages]
+    def __init__(
+        self,
+        text: str,
+        image_url: Optional[str] = None,
+        audio_url: Optional[str] = None,
+    ):
+        self.text = text
+        self.image_url = image_url
+        self.audio_url = audio_url
 
-    # Input fields
-    input_text: Optional[str]
-    input_image: Optional[bytes]
-
-    # Context node output (query rephrasing + relevance check)
-    rephrased_query: str
-    is_chemistry_related: bool
-    error_message: Optional[str]
-
-    # Extraction node output (keyword expansion + validation)
-    search_query: str
-    is_valid: bool
-    needs_rag: bool  # True = need RAG lookup, False = general knowledge (LLM answers directly)
-
-    # Retrieval node output
-    rag_context: List[Dict[str, Any]]
-
-    # Generation node output
-    final_response: Dict[str, Any]
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "text": self.text,
+            "image_url": self.image_url,
+            "audio_url": self.audio_url,
+        }

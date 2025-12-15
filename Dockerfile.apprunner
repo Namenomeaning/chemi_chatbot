@@ -1,0 +1,49 @@
+# CHEMI - Chemistry Chatbot (AWS App Runner)
+# Single container with FastAPI backend + Gradio frontend
+
+FROM python:3.13-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependency files first (better caching)
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies
+RUN uv sync --frozen --no-dev
+
+# Copy application code
+COPY src/ ./src/
+COPY gradio/ ./gradio/
+COPY data/ ./data/
+COPY scripts/ ./scripts/
+
+# Make startup script executable
+RUN chmod +x ./scripts/start.sh
+
+# Create non-root user for security
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PORT=7860
+
+# Expose Gradio port (App Runner entry point)
+EXPOSE 7860
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:7860/ || exit 1
+
+# Start both services
+CMD ["./scripts/start.sh"]
