@@ -56,6 +56,21 @@ jobs:
             exit 1
           fi
 
+          # Wait for service to be in RUNNING state before starting deployment
+          echo "Waiting for service to be ready..."
+          for i in {1..30}; do
+            STATUS=$(aws apprunner describe-service --service-arn $SERVICE_ARN --query "Service.Status" --output text)
+            echo "Current status: $STATUS"
+            if [ "$STATUS" = "RUNNING" ]; then
+              break
+            fi
+            if [ "$STATUS" = "CREATE_FAILED" ] || [ "$STATUS" = "DELETE_FAILED" ]; then
+              echo "Service in failed state: $STATUS"
+              exit 1
+            fi
+            sleep 10
+          done
+
           # Trigger a new deployment
           aws apprunner start-deployment --service-arn $SERVICE_ARN
 
