@@ -5,6 +5,7 @@ description = "Chemistry chatbot for Grade 11 Vietnamese students"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "boto3>=1.42.9",
     "fastapi>=0.120.4",
     "google-genai>=1.47.0",
     "gradio>=6.0.2",
