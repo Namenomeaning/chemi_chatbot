@@ -38,12 +38,19 @@ def parse_structured_response(content: str) -> Tuple[str, Optional[str], Optiona
     Returns:
         Tuple of (text_response, image_url, audio_url)
     """
+    import re
+
     try:
         # Try to parse as JSON (structured output)
         data = json.loads(content)
         text_response = data.get("text_response", content)
         image_url = data.get("image_url")
         audio_url = data.get("audio_url")
+
+        # Strip markdown images from text_response to avoid duplicates
+        # Pattern: ![any text](any url)
+        text_response = re.sub(r'!\[[^\]]*\]\([^)]+\)\n*', '', text_response).strip()
+
         return text_response, image_url, audio_url
     except (json.JSONDecodeError, TypeError):
         # Fallback: treat as plain text (no media)

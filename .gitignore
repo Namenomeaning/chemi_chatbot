@@ -93,3 +93,4 @@ models
 *.csv
 access_key*.csv
 *accessKeys*.csv
+data/isomers/

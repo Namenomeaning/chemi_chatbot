@@ -72,11 +72,17 @@ def generate_isomers(smiles: str) -> str:
     if mol is None:
         return json.dumps({"error": f"SMILES không hợp lệ: '{smiles}'"}, ensure_ascii=False)
 
-    # Get formula
+    # Get formula and canonical SMILES
     formula = rdMolDescriptors.CalcMolFormula(Chem.AddHs(mol))
+    canonical_smiles = Chem.MolToSmiles(mol, canonical=True)
 
-    # Simple filename based on formula only
-    filename = f"{formula.lower()}.png"
+    # Make SMILES filename-safe: = → e, / → f, \ → b, ( → o, ) → c, @ → a, # → t
+    safe_smiles = (canonical_smiles
+        .replace('=', 'e').replace('/', 'f').replace('\\', 'b')
+        .replace('(', 'o').replace(')', 'c').replace('@', 'a').replace('#', 't'))
+
+    # Unique filename: formula + safe_smiles
+    filename = f"{formula.lower()}_{safe_smiles}.png"
     s3_key = f"isomers/{filename}"
     s3_url = f"{_S3_BASE_URL}/{s3_key}"
 
