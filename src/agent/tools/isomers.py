@@ -77,28 +77,55 @@ def _get_stereo_info(mol) -> str:
 
 
 @tool
-def generate_isomers(smiles_list: list[str]) -> str:
+def generate_isomers(smiles_list: list[str], formula: str = None) -> str:
     """Tạo ảnh grid chứa tất cả đồng phân từ danh sách SMILES.
 
     Args:
         smiles_list: Danh sách SMILES (VD: ["CCCC", "CC(C)C"] cho C4H10)
+        formula: CTPT để validate (VD: "C4H10"). Nếu có, SMILES sai CTPT sẽ bị lọc.
 
     Returns:
         JSON chứa danh sách compounds với đồng phân lập thể và image_path
 
     Example:
-        generate_isomers(["CCCC", "CC(C)C"]) → ảnh grid của n-butane và isobutane
-        generate_isomers(["CC=CC"]) → ảnh grid E/Z isomers của but-2-ene
+        generate_isomers(["CCCC", "CC(C)C"], formula="C4H10") → ảnh grid n-butane + isobutane
+        generate_isomers(["CCCO", "CC(O)C", "COCC"], formula="C3H8O") → ảnh grid 3 đồng phân
     """
     if not smiles_list:
         return json.dumps({"error": "Danh sách SMILES rỗng"}, ensure_ascii=False)
 
-    # Validate and canonicalize all SMILES
-    canonical_list = []
+    # Validate SMILES and filter by formula if provided
+    valid_smiles = []
+    filtered_out = []
+
     for smiles in smiles_list:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            return json.dumps({"error": f"SMILES không hợp lệ: '{smiles}'"}, ensure_ascii=False)
+            filtered_out.append({"smiles": smiles, "reason": "SMILES không hợp lệ"})
+            continue
+
+        mol_formula = rdMolDescriptors.CalcMolFormula(Chem.AddHs(mol))
+
+        # Validate against expected formula if provided
+        if formula and mol_formula != formula:
+            filtered_out.append({
+                "smiles": smiles,
+                "reason": f"CTPT sai: {mol_formula} (expected {formula})"
+            })
+            continue
+
+        valid_smiles.append(smiles)
+
+    if not valid_smiles:
+        return json.dumps({
+            "error": "Không có SMILES hợp lệ sau khi validate",
+            "filtered_out": filtered_out
+        }, ensure_ascii=False, indent=2)
+
+    # Canonicalize valid SMILES
+    canonical_list = []
+    for smiles in valid_smiles:
+        mol = Chem.MolFromSmiles(smiles)
         canonical_list.append(Chem.MolToSmiles(mol, canonical=True))
 
     # Sort for consistent cache key, join safe SMILES
@@ -108,15 +135,15 @@ def generate_isomers(smiles_list: list[str]) -> str:
     s3_key = f"isomers/{filename}"
     s3_url = f"{_S3_BASE_URL}/{s3_key}"
 
-    # Process all molecules
+    # Process all valid molecules
     all_compounds = []
     all_mols = []
     all_legends = []
     opts = StereoEnumerationOptions(tryEmbedding=True, unique=True, maxIsomers=16)
 
-    for smiles in smiles_list:
+    for smiles in valid_smiles:
         mol = Chem.MolFromSmiles(smiles)
-        formula = rdMolDescriptors.CalcMolFormula(Chem.AddHs(mol))
+        mol_formula = rdMolDescriptors.CalcMolFormula(Chem.AddHs(mol))
         canonical = Chem.MolToSmiles(mol, canonical=True)
 
         isomers = []
@@ -136,19 +163,22 @@ def generate_isomers(smiles_list: list[str]) -> str:
         all_compounds.append({
             "input_smiles": smiles,
             "canonical_smiles": canonical,
-            "formula": formula,
+            "formula": mol_formula,
             "stereoisomers": isomers,
         })
 
     # Check S3 cache
     if _s3_file_exists(s3_key):
         logger.info(f"S3 cache hit: {s3_url}")
-        return json.dumps({
+        result = {
             "total_compounds": len(all_compounds),
             "total_stereoisomers": len(all_mols),
             "compounds": all_compounds,
             "image_path": s3_url,
-        }, ensure_ascii=False, indent=2)
+        }
+        if filtered_out:
+            result["filtered_out"] = filtered_out
+        return json.dumps(result, ensure_ascii=False, indent=2)
 
     # Generate grid image
     image_path = None
@@ -171,6 +201,8 @@ def generate_isomers(smiles_list: list[str]) -> str:
         "compounds": all_compounds,
         "image_path": image_path,
     }
+    if filtered_out:
+        result["filtered_out"] = filtered_out
 
-    logger.info(f"Generated grid for {len(smiles_list)} compounds → {len(all_mols)} stereoisomers")
+    logger.info(f"Generated grid for {len(valid_smiles)} compounds → {len(all_mols)} stereoisomers")
     return json.dumps(result, ensure_ascii=False, indent=2)
