@@ -228,8 +228,17 @@ async def query_chemistry(request: QueryRequest):
             return QueryResponse(
                 success=False,
                 thread_id=thread_id,
-                error=f"Xin lỗi, yêu cầu mất quá nhiều thời gian. Vui lòng thử lại với câu hỏi đơn giản hơn."
+                error="Xin lỗi, yêu cầu mất quá nhiều thời gian. Vui lòng thử lại với câu hỏi đơn giản hơn."
             )
+        except Exception as e:
+            if "recursion" in str(e).lower():
+                logger.warning(f"Agent recursion limit - thread_id: {thread_id}")
+                return QueryResponse(
+                    success=False,
+                    thread_id=thread_id,
+                    error="Xin lỗi, mình không tìm được thông tin phù hợp. Thử hỏi về chất khác nhé!"
+                )
+            raise
 
         # Extract response text from last AI message
         messages = result.get("messages", [])
@@ -322,8 +331,17 @@ async def query_with_upload(
             return QueryResponse(
                 success=False,
                 thread_id=thread_id,
-                error=f"Xin lỗi, yêu cầu mất quá nhiều thời gian. Vui lòng thử lại với câu hỏi đơn giản hơn."
+                error="Xin lỗi, yêu cầu mất quá nhiều thời gian. Vui lòng thử lại với câu hỏi đơn giản hơn."
             )
+        except Exception as e:
+            if "recursion" in str(e).lower():
+                logger.warning(f"Agent recursion limit - thread_id: {thread_id}")
+                return QueryResponse(
+                    success=False,
+                    thread_id=thread_id,
+                    error="Xin lỗi, mình không tìm được thông tin phù hợp. Thử hỏi về chất khác nhé!"
+                )
+            raise
 
         # Extract response
         messages = result.get("messages", [])

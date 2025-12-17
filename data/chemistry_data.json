@@ -998,5 +998,140 @@
     "formula": "NaCl",
     "image_path": "compounds/images/sodium_chloride.png",
     "audio_path": "https://chemistry-chatbot-assets.s3.ap-southeast-1.amazonaws.com/compounds/audio/sodium_chloride.wav"
+  },
+  {
+    "type": "compound",
+    "doc_id": "ethane",
+    "iupac_name": "Ethane",
+    "formula": "C2H6",
+    "molecular_formula": "C2H6",
+    "common_names": [
+      "Etan"
+    ],
+    "class": "Alkane",
+    "info": "Alkane 2 carbon, khí không màu."
+  },
+  {
+    "type": "compound",
+    "doc_id": "propane",
+    "iupac_name": "Propane",
+    "formula": "C3H8",
+    "molecular_formula": "C3H8",
+    "common_names": [
+      "Propan",
+      "Gas"
+    ],
+    "class": "Alkane",
+    "info": "Alkane 3 carbon, thành phần chính của gas đun nấu."
+  },
+  {
+    "type": "compound",
+    "doc_id": "butane",
+    "iupac_name": "Butane",
+    "formula": "C4H10",
+    "molecular_formula": "C4H10",
+    "common_names": [
+      "Butan",
+      "n-Butane"
+    ],
+    "class": "Alkane",
+    "info": "Alkane 4 carbon, có 2 đồng phân cấu tạo: n-butane (mạch thẳng) và isobutane (mạch nhánh).",
+    "isomers": [
+      "n-butane (CCCC)",
+      "isobutane (CC(C)C)"
+    ]
+  },
+  {
+    "type": "compound",
+    "doc_id": "isobutane",
+    "iupac_name": "2-Methylpropane",
+    "formula": "C4H10",
+    "molecular_formula": "C4H10",
+    "common_names": [
+      "Isobutane",
+      "Isobutan"
+    ],
+    "class": "Alkane",
+    "info": "Đồng phân mạch nhánh của butane (C4H10)."
+  },
+  {
+    "type": "compound",
+    "doc_id": "pentane",
+    "iupac_name": "Pentane",
+    "formula": "C5H12",
+    "molecular_formula": "C5H12",
+    "common_names": [
+      "Pentan",
+      "n-Pentane"
+    ],
+    "class": "Alkane",
+    "info": "Alkane 5 carbon, có 3 đồng phân cấu tạo."
+  },
+  {
+    "type": "compound",
+    "doc_id": "methanol",
+    "iupac_name": "Methanol",
+    "formula": "CH3OH",
+    "molecular_formula": "CH4O",
+    "common_names": [
+      "Rượu gỗ",
+      "Ancol metylic"
+    ],
+    "class": "Alcohol",
+    "info": "Alcohol đơn giản nhất, rất độc, dùng làm dung môi công nghiệp."
+  },
+  {
+    "type": "compound",
+    "doc_id": "propan-1-ol",
+    "iupac_name": "Propan-1-ol",
+    "formula": "C3H7OH",
+    "molecular_formula": "C3H8O",
+    "common_names": [
+      "1-Propanol",
+      "n-Propanol",
+      "Ancol propylic"
+    ],
+    "class": "Alcohol",
+    "info": "Alcohol bậc 1 với 3 carbon, nhóm -OH ở vị trí đầu mạch."
+  },
+  {
+    "type": "compound",
+    "doc_id": "propan-2-ol",
+    "iupac_name": "Propan-2-ol",
+    "formula": "C3H7OH",
+    "molecular_formula": "C3H8O",
+    "common_names": [
+      "2-Propanol",
+      "Isopropanol",
+      "Cồn sát trùng"
+    ],
+    "class": "Alcohol",
+    "info": "Alcohol bậc 2 với 3 carbon, nhóm -OH ở vị trí giữa mạch. Dùng làm cồn sát trùng."
+  },
+  {
+    "type": "compound",
+    "doc_id": "methoxyethane",
+    "iupac_name": "Methoxyethane",
+    "formula": "CH3OC2H5",
+    "molecular_formula": "C3H8O",
+    "common_names": [
+      "Ethyl methyl ether",
+      "Đimetyl ete"
+    ],
+    "class": "Ether",
+    "info": "Đồng phân nhóm chức của propanol (C3H8O). Là ete, không phải alcohol."
+  },
+  {
+    "type": "compound",
+    "doc_id": "diethyl_ether",
+    "iupac_name": "Ethoxyethane",
+    "formula": "C2H5OC2H5",
+    "molecular_formula": "C4H10O",
+    "common_names": [
+      "Diethyl ether",
+      "Ete etylic"
+    ],
+    "class": "Ether",
+    "info": "Ete phổ biến, dùng làm dung môi và thuốc mê trong y học."
   }
 ]

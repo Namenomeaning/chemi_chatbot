@@ -64,14 +64,25 @@ def search_compound(query: str) -> str:
     for compound in compounds:
         iupac_name = compound.get("iupac_name", "").lower()
         formula = compound.get("formula", "").lower()
+        molecular_formula = compound.get("molecular_formula", "").lower()
+        common_names = [n.lower() for n in compound.get("common_names", [])]
 
         # Calculate similarity scores
         name_score = fuzz.token_sort_ratio(query_lower, iupac_name) / 100.0
-        formula_score = fuzz.ratio(query_lower, formula) / 100.0
+        formula_score = max(
+            fuzz.ratio(query_lower, formula) / 100.0,
+            fuzz.ratio(query_lower, molecular_formula) / 100.0
+        )
+        # Check common names
+        common_score = max(
+            (fuzz.token_sort_ratio(query_lower, cn) / 100.0 for cn in common_names),
+            default=0
+        )
 
-        max_score = max(name_score, formula_score)
+        max_score = max(name_score, formula_score, common_score)
 
-        if max_score >= 0.5:  # Threshold
+        # Higher threshold (0.7) to avoid wrong matches
+        if max_score >= 0.7:
             results.append({**compound, "score": round(max_score, 2)})
 
     if not results:
