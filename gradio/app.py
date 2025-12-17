@@ -135,10 +135,6 @@ BASE_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 API_URL = f"{BASE_URL}/query"
 API_URL_UPLOAD = f"{BASE_URL}/query/upload"
 
-# Store uploaded image path and thread_id temporarily
-uploaded_image_path = None
-current_thread_id = None
-
 
 def image_to_base64_uri(file_path: str) -> str:
     """Convert image file to base64 data URI."""
@@ -155,9 +151,15 @@ def image_to_base64_uri(file_path: str) -> str:
     return f"data:{mime_type};base64,{data}"
 
 
-def user_message(message, history):
-    """Add user message to history (Gradio 6.0 format)."""
-    global uploaded_image_path
+def user_message(message, history, session_state):
+    """Add user message to history (Gradio 6.0 format).
+
+    Args:
+        message: User input from MultimodalTextbox
+        history: Chat history
+        session_state: Per-session state dict with 'uploaded_image_path' and 'thread_id'
+    """
+    uploaded_image_path = None
 
     # Extract text and files from MultimodalTextbox
     if isinstance(message, dict):
@@ -178,21 +180,29 @@ def user_message(message, history):
             image_uri = image_to_base64_uri(uploaded_image_path)
             content = f"{user_text}\n\n![image]({image_uri})"
         else:
-            uploaded_image_path = None
             content = user_text
     else:
         user_text = str(message).strip()
-        uploaded_image_path = None
         content = user_text
 
     # Gradio 6.0 format: dict with role and content
     history.append({"role": "user", "content": content})
-    return "", history
+
+    # Update session state with uploaded image path
+    session_state["uploaded_image_path"] = uploaded_image_path
+
+    return "", history, session_state
 
 
-def bot_response(history):
-    """Generate bot response and update history (Gradio 6.0 format)."""
-    global uploaded_image_path, current_thread_id
+def bot_response(history, session_state):
+    """Generate bot response and update history (Gradio 6.0 format).
+
+    Args:
+        history: Chat history
+        session_state: Per-session state dict with 'uploaded_image_path' and 'thread_id'
+    """
+    uploaded_image_path = session_state.get("uploaded_image_path")
+    current_thread_id = session_state.get("thread_id")
 
     # Get last user message (Gradio 6.0 format)
     last_message = history[-1]
@@ -207,7 +217,7 @@ def bot_response(history):
 
     if not user_text and not uploaded_image_path:
         history.append({"role": "assistant", "content": "⚠️ Vui lòng nhập câu hỏi hoặc tải lên hình ảnh."})
-        yield history
+        yield history, session_state
         return
 
     if not user_text and uploaded_image_path:
@@ -222,7 +232,8 @@ def bot_response(history):
             with open(uploaded_image_path, "rb") as f:
                 files = {"image": f}
                 response = requests.post(API_URL_UPLOAD, data=data, files=files, timeout=60)
-            uploaded_image_path = None
+            # Clear uploaded image after use
+            session_state["uploaded_image_path"] = None
         else:
             payload = {
                 "text": user_text,
@@ -233,21 +244,21 @@ def bot_response(history):
         # Debug: Check response status and content
         if response.status_code != 200:
             history.append({"role": "assistant", "content": f"❌ **API Error (HTTP {response.status_code}):**\n```\n{response.text[:500]}\n```\n\n💡 Kiểm tra FastAPI backend đang chạy tại: `{BASE_URL}`"})
-            yield history
+            yield history, session_state
             return
 
         # Check if response is JSON
         content_type = response.headers.get("content-type", "")
         if "application/json" not in content_type:
             history.append({"role": "assistant", "content": f"❌ **API không trả về JSON** (Content-Type: {content_type})\n\n💡 Kiểm tra:\n1. FastAPI backend chạy chưa?\n2. Port 8000 đã public chưa? (Codespaces)\n3. API URL: `{BASE_URL}`"})
-            yield history
+            yield history, session_state
             return
 
         result = response.json()
 
         # Store thread_id from response for next request
         if result.get("thread_id"):
-            current_thread_id = result["thread_id"]
+            session_state["thread_id"] = result["thread_id"]
 
         if result["success"]:
             response_text = result["text_response"]
@@ -279,7 +290,7 @@ def bot_response(history):
     except Exception as e:
         history.append({"role": "assistant", "content": f"❌ **Lỗi không mong muốn:** {str(e)}"})
 
-    yield history
+    yield history, session_state
 
 
 def get_initial_history():
@@ -288,16 +299,23 @@ def get_initial_history():
 
 
 def clear_conversation():
-    """Clear conversation history and reset thread_id with new welcome message."""
-    global current_thread_id
-    current_thread_id = None  # Reset thread_id to start new conversation
-    return get_initial_history()
+    """Clear conversation history and reset session state with new welcome message."""
+    new_state = {"uploaded_image_path": None, "thread_id": None}
+    return get_initial_history(), new_state
+
+
+def get_initial_state():
+    """Get initial session state."""
+    return {"uploaded_image_path": None, "thread_id": None}
 
 
 # Gradio interface
 with gr.Blocks() as demo:
     # Inject custom CSS
     gr.HTML(f"<style>{CUSTOM_CSS}</style>")
+
+    # Per-session state (thread_id, uploaded_image_path)
+    session_state = gr.State(get_initial_state)
 
     # Header with clear button
     with gr.Row():
@@ -341,10 +359,13 @@ with gr.Blocks() as demo:
         elem_classes="examples-row"
     )
 
-    msg.submit(user_message, [msg, chatbot], [msg, chatbot], queue=False).then(
-        bot_response, chatbot, chatbot
+    # Event handlers with session state
+    msg.submit(
+        user_message, [msg, chatbot, session_state], [msg, chatbot, session_state], queue=False
+    ).then(
+        bot_response, [chatbot, session_state], [chatbot, session_state]
     )
-    clear.click(clear_conversation, None, [chatbot], queue=False)
+    clear.click(clear_conversation, None, [chatbot, session_state], queue=False)
 
 
 if __name__ == "__main__":
