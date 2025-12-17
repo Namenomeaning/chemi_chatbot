@@ -225,17 +225,20 @@ async def query_chemistry(request: QueryRequest):
             )
         except asyncio.TimeoutError:
             logger.warning(f"Agent timeout after {AGENT_TIMEOUT}s - thread_id: {thread_id}")
+            # Return new thread_id to avoid corrupted conversation state
             return QueryResponse(
                 success=False,
-                thread_id=thread_id,
+                thread_id=f"thread-{os.urandom(8).hex()}",
                 error="Xin lỗi, yêu cầu mất quá nhiều thời gian. Vui lòng thử lại với câu hỏi đơn giản hơn."
             )
         except Exception as e:
-            if "recursion" in str(e).lower():
-                logger.warning(f"Agent recursion limit - thread_id: {thread_id}")
+            error_msg = str(e).lower()
+            if "recursion" in error_msg or "tool_call" in error_msg or "429" in str(e):
+                logger.warning(f"Agent error (recursion/tool_call) - thread_id: {thread_id}, error: {e}")
+                # Return new thread_id to avoid corrupted conversation state
                 return QueryResponse(
                     success=False,
-                    thread_id=thread_id,
+                    thread_id=f"thread-{os.urandom(8).hex()}",
                     error="Xin lỗi, mình không tìm được thông tin phù hợp. Thử hỏi về chất khác nhé!"
                 )
             raise
@@ -330,15 +333,16 @@ async def query_with_upload(
             logger.warning(f"Agent timeout after {AGENT_TIMEOUT}s - thread_id: {thread_id}")
             return QueryResponse(
                 success=False,
-                thread_id=thread_id,
+                thread_id=f"thread-{os.urandom(8).hex()}",
                 error="Xin lỗi, yêu cầu mất quá nhiều thời gian. Vui lòng thử lại với câu hỏi đơn giản hơn."
             )
         except Exception as e:
-            if "recursion" in str(e).lower():
-                logger.warning(f"Agent recursion limit - thread_id: {thread_id}")
+            error_msg = str(e).lower()
+            if "recursion" in error_msg or "tool_call" in error_msg or "429" in str(e):
+                logger.warning(f"Agent error (recursion/tool_call) - thread_id: {thread_id}, error: {e}")
                 return QueryResponse(
                     success=False,
-                    thread_id=thread_id,
+                    thread_id=f"thread-{os.urandom(8).hex()}",
                     error="Xin lỗi, mình không tìm được thông tin phù hợp. Thử hỏi về chất khác nhé!"
                 )
             raise

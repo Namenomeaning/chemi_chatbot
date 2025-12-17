@@ -59,27 +59,33 @@ def search_compound(query: str) -> str:
         return "Lỗi: Không thể tải dữ liệu hợp chất."
 
     query_lower = query.lower().strip()
+    query_upper = query.upper().strip()
     results = []
+
+    # Check if query looks like a formula (e.g., C4H10, CH4, C2H5OH)
+    import re
+    is_formula_query = bool(re.match(r'^[A-Z][a-zA-Z0-9]+$', query.strip()))
 
     for compound in compounds:
         iupac_name = compound.get("iupac_name", "").lower()
-        formula = compound.get("formula", "").lower()
-        molecular_formula = compound.get("molecular_formula", "").lower()
+        formula = compound.get("formula", "").upper()
+        molecular_formula = compound.get("molecular_formula", "").upper()
         common_names = [n.lower() for n in compound.get("common_names", [])]
 
-        # Calculate similarity scores
+        # For formula queries, use exact match only
+        if is_formula_query:
+            if query_upper == formula or query_upper == molecular_formula:
+                results.append({**compound, "score": 1.0})
+            continue
+
+        # For name queries, use fuzzy matching
         name_score = fuzz.token_sort_ratio(query_lower, iupac_name) / 100.0
-        formula_score = max(
-            fuzz.ratio(query_lower, formula) / 100.0,
-            fuzz.ratio(query_lower, molecular_formula) / 100.0
-        )
-        # Check common names
         common_score = max(
             (fuzz.token_sort_ratio(query_lower, cn) / 100.0 for cn in common_names),
             default=0
         )
 
-        max_score = max(name_score, formula_score, common_score)
+        max_score = max(name_score, common_score)
 
         # Higher threshold (0.7) to avoid wrong matches
         if max_score >= 0.7:
