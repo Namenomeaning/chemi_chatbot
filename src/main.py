@@ -147,5 +147,5 @@ if __name__ == "__main__":
         port=int(os.getenv("PORT", "8000")),
         reload=os.getenv("ENV", "production") != "production",
         workers=1,
-        limit_concurrency=10,
+        limit_concurrency=50,
     )
