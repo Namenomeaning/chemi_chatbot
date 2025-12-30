@@ -4,290 +4,1052 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHEMI - Trợ lý Hóa học</title>
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233B82F6'/%3E%3Cstop offset='100%25' stop-color='%2360A5FA'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M12 8v6l-4 8a2 2 0 002 2h12a2 2 0 002-2l-4-8V8' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10 8h12' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='14' cy='19' r='1.5' fill='white'/%3E%3Ccircle cx='18' cy='17' r='1' fill='white'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+        :root {
+            /* Colors - Deep Blue Dark Theme */
+            --bg-primary: #0a0d14;
+            --bg-secondary: #0d1117;
+            --bg-input: #161b22;
+            --bg-hover: #1c2128;
+            --bg-message: #151a21;
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Be Vietnam Pro', 'system-ui', 'sans-serif'],
-                    },
-                    colors: {
-                        chemistry: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            300: '#86efac',
-                            400: '#4ade80',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
-                        }
-                    }
-                }
+            --text-primary: #FFFFFF;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+
+            --accent-color: #3B82F6;
+            --accent-hover: #2563EB;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --accent-light: #60A5FA;
+
+            --border-color: #21262d;
+            --border-light: #30363d;
+
+            /* Spacing */
+            --sidebar-width: 260px;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+        }
+
+        /* ===== LAYOUT ===== */
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0d1117 0%, #0a0d14 100%);
+            border-right: 1px solid rgba(59, 130, 246, 0.1);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .sidebar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 50%, rgba(59, 130, 246, 0.2) 100%);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
             }
         }
-    </script>
 
-    <style>
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
+        .sidebar-header {
+            padding: 12px 16px;
+            min-height: 57px;
+            display: flex;
+            align-items: center;
         }
-        ::-webkit-scrollbar-track {
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
             background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #374151;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563;
-        }
-
-        /* Animated gradient background */
-        .bg-animated {
-            background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #1e3a2f);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
+            border: 1px dashed var(--border-light);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.15s ease;
+            margin-bottom: 12px;
         }
 
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .new-chat-btn:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
         }
 
-        /* Floating molecules decoration */
-        .molecule {
+        .nav-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 12px 8px;
+            margin-top: 8px;
+        }
+
+        .chat-history {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.15s ease;
+            text-align: left;
+            width: 100%;
+        }
+
+        .history-item:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .history-item.active {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .history-item-icon {
+            font-size: 14px;
+            opacity: 0.6;
+        }
+
+        .history-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-item-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item-date {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .history-delete-btn {
+            opacity: 0;
+            padding: 4px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .history-item:hover .history-delete-btn {
+            opacity: 1;
+        }
+
+        .history-delete-btn:hover {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: linear-gradient(180deg, #0d1117 0%, #0a0d14 50%, #080b10 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Chemistry Icons Background */
+        .chem-bg {
             position: absolute;
-            opacity: 0.03;
-            font-size: 60px;
-            animation: float 20s ease-in-out infinite;
+            inset: 0;
             pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
         }
+
+        .chem-icon {
+            position: absolute;
+            opacity: 0.06;
+            color: var(--accent-color);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .chem-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: currentColor;
+            stroke-width: 1;
+            fill: none;
+        }
+
+        .chem-icon:nth-child(1) { width: 90px; height: 90px; top: 8%; left: 12%; animation-delay: 0s; animation-duration: 25s; }
+        .chem-icon:nth-child(2) { width: 68px; height: 68px; top: 20%; right: 18%; animation-delay: -5s; animation-duration: 22s; }
+        .chem-icon:nth-child(3) { width: 82px; height: 82px; bottom: 28%; left: 8%; animation-delay: -10s; animation-duration: 28s; }
+        .chem-icon:nth-child(4) { width: 60px; height: 60px; top: 55%; right: 12%; animation-delay: -3s; animation-duration: 20s; }
+        .chem-icon:nth-child(5) { width: 75px; height: 75px; bottom: 12%; right: 22%; animation-delay: -8s; animation-duration: 24s; }
+        .chem-icon:nth-child(6) { width: 52px; height: 52px; top: 42%; left: 22%; animation-delay: -12s; animation-duration: 26s; }
+        .chem-icon:nth-child(7) { width: 72px; height: 72px; top: 3%; right: 32%; animation-delay: -15s; animation-duration: 23s; }
+        .chem-icon:nth-child(8) { width: 63px; height: 63px; bottom: 42%; left: 32%; animation-delay: -7s; animation-duration: 27s; }
+        .chem-icon:nth-child(9) { width: 55px; height: 55px; top: 35%; right: 45%; animation-delay: -18s; animation-duration: 30s; }
+        .chem-icon:nth-child(10) { width: 78px; height: 78px; bottom: 55%; right: 8%; animation-delay: -2s; animation-duration: 21s; }
+        .chem-icon:nth-child(11) { width: 65px; height: 65px; top: 70%; left: 45%; animation-delay: -14s; animation-duration: 29s; }
+        .chem-icon:nth-child(12) { width: 58px; height: 58px; bottom: 8%; left: 55%; animation-delay: -9s; animation-duration: 24s; }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(10deg); }
-        }
-
-        /* Glass effect */
-        .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Message animation */
-        .message-enter {
-            animation: messageSlide 0.3s ease-out;
-        }
-
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0.04;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            25% {
+                transform: translate(30px, -20px) rotate(5deg);
+                opacity: 0.08;
             }
+            50% {
+                transform: translate(-20px, 30px) rotate(-5deg);
+                opacity: 0.06;
+            }
+            75% {
+                transform: translate(20px, 20px) rotate(3deg);
+                opacity: 0.07;
+            }
+        }
+
+        .main > *:not(.chem-bg) {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            min-height: 57px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .model-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .model-badge-icon {
+            font-size: 14px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--accent-color);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ===== CHAT AREA ===== */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Welcome Screen */
+        .welcome {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .welcome-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px var(--accent-glow);
+            animation: iconFloat 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .welcome-icon::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            border-radius: var(--radius-xl);
+            opacity: 0.3;
+            filter: blur(12px);
+            z-index: -1;
+            animation: iconGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes iconGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-subtitle {
+            font-size: 17px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 520px;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 560px;
+        }
+
+        @media (max-width: 560px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: left;
+        }
+
+        .feature-card:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+        }
+
+        .feature-card:hover .feature-icon {
+            background-color: rgba(59, 130, 246, 0.25);
+            transform: scale(1.05);
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(59, 130, 246, 0.15);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            color: var(--accent-color);
+            transition: all 0.2s ease;
+        }
+
+        .feature-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--accent-color);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .feature-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .feature-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Messages */
+        .messages {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message-avatar.bot {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+        }
+
+        .message-avatar.user {
+            background-color: var(--bg-input);
+        }
+
+        .message-avatar.error {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .message-content {
+            max-width: 70%;
+        }
+
+        .message-bubble {
+            padding: 14px 18px;
+            border-radius: var(--radius-lg);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .message.user .message-bubble {
+            background-color: var(--accent-color);
+            color: white;
+            border-bottom-right-radius: var(--radius-sm);
+        }
+
+        .message.bot .message-bubble {
+            background-color: var(--bg-message);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: var(--radius-sm);
+        }
+
+        .message-bubble.error {
+            color: #ef4444;
+        }
+
+        .message-image {
+            margin-top: 8px;
+            max-width: 200px;
+            border-radius: var(--radius-md);
+        }
+
+        .structure-container {
+            margin-top: 12px;
+            background: white;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            display: inline-block;
+        }
+
+        .structure-image {
+            max-width: 200px;
+        }
+
+        .audio-container {
+            margin-top: 12px;
+            background-color: var(--bg-input);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            max-width: 240px;
+        }
+
+        .audio-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        audio {
+            width: 100%;
+            height: 32px;
+        }
+
+        .media-placeholder {
+            margin-top: 12px;
+            padding: 12px;
+            background-color: var(--bg-input);
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* Typing indicator */
-        .typing-dot {
-            animation: typingBounce 1.4s ease-in-out infinite;
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
         }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--text-muted);
+            border-radius: 50%;
+            animation: typing 1.4s ease-in-out infinite;
+        }
+
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-        @keyframes typingBounce {
+        @keyframes typing {
             0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-4px); }
+            30% { transform: translateY(-6px); }
         }
 
-        /* Button hover effect */
-        .btn-glow:hover {
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+        /* Text formatting */
+        .prose strong { color: var(--accent-color); font-weight: 600; }
+        .prose em { font-style: italic; }
+        .prose code {
+            background-color: var(--bg-hover);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'SF Mono', Monaco, monospace;
         }
 
-        /* Input focus ring */
-        .input-ring:focus-within {
-            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        /* ===== INPUT AREA ===== */
+        .input-area {
+            padding: 16px 20px 24px;
         }
 
-        /* Smooth transitions */
-        * {
-            transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        /* Hide scrollbar but keep functionality */
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .image-preview {
+            margin-bottom: 12px;
         }
-        .hide-scrollbar::-webkit-scrollbar {
+
+        .image-preview-content {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+
+        .preview-thumb {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+
+        .remove-preview-btn {
+            width: 20px;
+            height: 20px;
+            background-color: rgba(239, 68, 68, 0.8);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: background 0.15s ease;
+        }
+
+        .remove-preview-btn:hover {
+            background-color: #ef4444;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            transition: all 0.15s ease;
+        }
+
+        .input-box:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .input-btn {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .input-btn:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .text-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            min-height: 26px;
+            max-height: 120px;
+            line-height: 26px;
+            padding: 0;
+        }
+
+        .text-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px var(--accent-glow);
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, var(--accent-hover), var(--accent-color));
+            transform: scale(1.08);
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-disclaimer {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        .file-input {
             display: none;
         }
 
-        /* Audio player custom style */
-        audio {
-            height: 36px;
-            border-radius: 8px;
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
         }
 
-        audio::-webkit-media-controls-panel {
-            background: #1e293b;
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-light);
+        }
+
+        .hidden { display: none !important; }
+
+        /* SVG Icons */
+        .icon {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .icon-sm { width: 14px; height: 14px; }
+        .icon-lg { width: 20px; height: 20px; }
     </style>
 </head>
-<body class="bg-animated font-sans text-gray-100 h-screen overflow-hidden">
-    <!-- Decorative molecules -->
-    <div class="molecule" style="top: 10%; left: 5%;">⚗️</div>
-    <div class="molecule" style="top: 30%; right: 10%; animation-delay: -5s;">🧪</div>
-    <div class="molecule" style="bottom: 20%; left: 15%; animation-delay: -10s;">⚛️</div>
-    <div class="molecule" style="bottom: 40%; right: 5%; animation-delay: -7s;">🔬</div>
-
-    <div class="flex h-full relative z-10">
+<body>
+    <div class="app">
         <!-- Sidebar -->
-        <aside class="w-64 glass flex flex-col border-r border-gray-700/50 hidden md:flex">
-            <!-- New Chat Button -->
-            <div class="p-3">
-                <button onclick="startNewChat()"
-                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-600/50 hover:bg-gray-700/50 text-sm font-medium">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">&#9879;</div>
+                    <div>
+                        <div class="logo-text">CHEMI</div>
+                        <div class="logo-subtitle">Trợ lý Hóa học</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button onclick="startNewChat()" class="new-chat-btn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Cuộc trò chuyện mới
                 </button>
-            </div>
 
-            <!-- Logo -->
-            <div class="flex items-center gap-3 px-4 py-4 border-b border-gray-700/30">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-chemistry-500 to-emerald-400 flex items-center justify-center text-xl shadow-lg">
-                    ⚗️
-                </div>
-                <div>
-                    <div class="font-bold text-lg">CHEMI</div>
-                    <div class="text-xs text-gray-400">Trợ lý Hóa học THPT</div>
-                </div>
-            </div>
+                <div class="nav-label">Gần đây</div>
+                <div id="chatHistory" class="chat-history"></div>
+            </nav>
 
-            <!-- Chat History -->
-            <div id="chatHistory" class="flex-1 overflow-y-auto hide-scrollbar p-2 space-y-1">
-                <!-- History items here -->
-            </div>
-
-            <!-- Footer -->
-            <div class="p-4 border-t border-gray-700/30 text-center text-xs text-gray-500">
-                CHEMI v2.0
-            </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col min-w-0">
-            <!-- Header -->
-            <header class="glass border-b border-gray-700/30 px-4 py-3 flex items-center justify-between">
-                <div class="flex items-center gap-2 text-sm font-medium">
-                    <div class="w-2 h-2 rounded-full bg-chemistry-500 animate-pulse"></div>
-                    CHEMI Online
+        <main class="main">
+            <!-- Animated Chemistry Icons Background -->
+            <div class="chem-bg">
+                <!-- Flask -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><path d="M9 3h6v6l4 8a2 2 0 01-2 2H7a2 2 0 01-2-2l4-8V3"/><path d="M8 3h8"/></svg>
                 </div>
-                <div class="text-xs text-gray-500">
-                    Session: <span id="sessionId" class="text-gray-400">--</span>
+                <!-- Atom -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(0 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>
+                </div>
+                <!-- Molecule -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="8" r="2"/><circle cx="18" cy="16" r="2"/><line x1="9" y1="12" x2="16" y2="8"/><line x1="9" y1="12" x2="16" y2="16"/></svg>
+                </div>
+                <!-- Test Tube -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16a2.5 2.5 0 01-5 0"/></svg>
+                </div>
+                <!-- Benzene Ring -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><polygon points="12,2 20,7 20,17 12,22 4,17 4,7"/><polygon points="12,6 16,8.5 16,15.5 12,18 8,15.5 8,8.5"/></svg>
+                </div>
+                <!-- Beaker -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><path d="M6 4h12v16a2 2 0 01-2 2H8a2 2 0 01-2-2V4z"/><path d="M6 4V2h12v2"/><path d="M6 14h12"/></svg>
+                </div>
+                <!-- H2O -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="4"/><circle cx="6" cy="16" r="2.5"/><circle cx="18" cy="16" r="2.5"/><line x1="9" y1="12" x2="7" y2="14"/><line x1="15" y1="12" x2="17" y2="14"/></svg>
+                </div>
+                <!-- DNA Helix -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><path d="M6 2c0 4 6 6 6 10s-6 6-6 10"/><path d="M18 2c0 4-6 6-6 10s6 6 6 10"/><line x1="6" y1="7" x2="18" y2="7"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="17" x2="18" y2="17"/></svg>
+                </div>
+                <!-- Erlenmeyer Flask -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><path d="M10 2v7.31l-5 8.54A2 2 0 006.7 21h10.6a2 2 0 001.7-2.85l-5-8.54V2"/><line x1="8" y1="2" x2="16" y2="2"/><path d="M7 15h10"/></svg>
+                </div>
+                <!-- Periodic Element -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><text x="12" y="14" text-anchor="middle" font-size="8" fill="currentColor" stroke="none">Fe</text><text x="12" y="19" text-anchor="middle" font-size="4" fill="currentColor" stroke="none">26</text></svg>
+                </div>
+                <!-- Carbon Chain -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="4" cy="12" r="2"/><circle cx="10" cy="8" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="22" cy="8" r="2"/><line x1="6" y1="11" x2="8" y2="9"/><line x1="12" y1="9" x2="14" y2="11"/><line x1="18" y1="11" x2="20" y2="9"/></svg>
+                </div>
+                <!-- Droplet -->
+                <div class="chem-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+                </div>
+            </div>
+
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="model-badge">
+                        <span>Chemi xin chào</span>
+                        <span class="model-badge-icon">&#128075;</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="status-badge">
+                        <span class="status-dot"></span>
+                        <span>Trực tuyến</span>
+                    </div>
                 </div>
             </header>
 
-            <!-- Welcome Screen -->
-            <div id="welcomeScreen" class="flex-1 flex flex-col items-center justify-center p-6">
-                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-chemistry-500 to-emerald-400 flex items-center justify-center text-4xl mb-6 shadow-xl shadow-chemistry-500/20">
-                    ⚗️
-                </div>
-                <h1 class="text-3xl font-bold mb-2">Xin chào!</h1>
-                <p class="text-gray-400 mb-8">Tôi là CHEMI - Trợ lý Hóa học cho học sinh THPT</p>
+            <!-- Chat Area -->
+            <div class="chat-area">
+                <!-- Welcome Screen -->
+                <div id="welcomeScreen" class="welcome">
+                    <div class="welcome-icon">&#9879;</div>
+                    <h1 class="welcome-title">Xin chào!</h1>
+                    <p class="welcome-subtitle">Trợ lý AI hỗ trợ gọi tên nguyên tố<br>và hợp chất hóa học theo chuẩn IUPAC</p>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl w-full">
-                    <button onclick="sendExample('Ethanol là gì?')"
-                        class="glass rounded-xl p-4 text-left hover:bg-gray-700/50 group">
-                        <div class="text-2xl mb-2">🧪</div>
-                        <div class="text-sm text-gray-300 group-hover:text-white">"Ethanol là gì?"</div>
-                        <div class="text-xs text-gray-500 mt-1">Tìm hiểu về rượu etylic</div>
-                    </button>
-                    <button onclick="sendExample('C2H4 có tên gọi là gì?')"
-                        class="glass rounded-xl p-4 text-left hover:bg-gray-700/50 group">
-                        <div class="text-2xl mb-2">🔬</div>
-                        <div class="text-sm text-gray-300 group-hover:text-white">"C2H4 có tên gọi là gì?"</div>
-                        <div class="text-xs text-gray-500 mt-1">Tra cứu từ công thức</div>
-                    </button>
-                    <button onclick="sendExample('Axit acetic có công thức như thế nào?')"
-                        class="glass rounded-xl p-4 text-left hover:bg-gray-700/50 group">
-                        <div class="text-2xl mb-2">📝</div>
-                        <div class="text-sm text-gray-300 group-hover:text-white">"Axit acetic có công thức?"</div>
-                        <div class="text-xs text-gray-500 mt-1">Học về axit hữu cơ</div>
-                    </button>
-                    <button onclick="document.getElementById('imageInput').click()"
-                        class="glass rounded-xl p-4 text-left hover:bg-gray-700/50 group">
-                        <div class="text-2xl mb-2">📷</div>
-                        <div class="text-sm text-gray-300 group-hover:text-white">Tải ảnh công thức</div>
-                        <div class="text-xs text-gray-500 mt-1">Nhận diện từ hình ảnh</div>
-                    </button>
+                    <div class="features">
+                        <button onclick="sendExample('Gợi tên IUPAC cho C2H5OH')" class="feature-card">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            </div>
+                            <div class="feature-content">
+                                <div class="feature-title">Gợi tên IUPAC</div>
+                                <div class="feature-desc">Gợi tên nguyên tố và hợp chất theo chuẩn IUPAC</div>
+                            </div>
+                        </button>
+                        <button onclick="sendExample('Phát âm Ethanol')" class="feature-card">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                            </div>
+                            <div class="feature-content">
+                                <div class="feature-title">Phát âm tiếng Anh</div>
+                                <div class="feature-desc">Nghe cách phát âm tiếng Anh chuẩn</div>
+                            </div>
+                        </button>
+                        <button onclick="sendExample('Cho tôi xem cấu trúc của Methane')" class="feature-card">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="4" r="2"/><circle cx="12" cy="20" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="20" cy="8" r="2"/><circle cx="4" cy="16" r="2"/><circle cx="20" cy="16" r="2"/><line x1="12" y1="9" x2="12" y2="6"/><line x1="12" y1="15" x2="12" y2="18"/><line x1="9.5" y1="10.5" x2="5.5" y2="9"/><line x1="14.5" y1="10.5" x2="18.5" y2="9"/><line x1="9.5" y1="13.5" x2="5.5" y2="15"/><line x1="14.5" y1="13.5" x2="18.5" y2="15"/></svg>
+                            </div>
+                            <div class="feature-content">
+                                <div class="feature-title">Minh họa cấu trúc</div>
+                                <div class="feature-desc">Xem hình ảnh cấu trúc hóa học</div>
+                            </div>
+                        </button>
+                        <button onclick="document.getElementById('imageInput').click()" class="feature-card">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </div>
+                            <div class="feature-content">
+                                <div class="feature-title">Nhận dạng hình ảnh</div>
+                                <div class="feature-desc">Nhận dạng hợp chất từ hình ảnh công thức</div>
+                            </div>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Chat Messages -->
-            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 hidden">
-                <!-- Messages here -->
+                <!-- Messages -->
+                <div id="chatMessages" class="messages hidden"></div>
             </div>
 
             <!-- Input Area -->
-            <div class="p-4 border-t border-gray-700/30">
-                <div class="max-w-3xl mx-auto">
+            <div class="input-area">
+                <div class="input-container">
                     <!-- Image Preview -->
-                    <div id="imagePreviewArea" class="mb-3 hidden">
-                        <div class="inline-flex items-start gap-2 glass rounded-lg p-2">
-                            <img id="previewThumb" src="" alt="Preview" class="w-16 h-16 object-cover rounded-lg">
-                            <button onclick="removeImage()"
-                                class="w-6 h-6 rounded-full bg-red-500/80 hover:bg-red-500 flex items-center justify-center text-xs">
-                                <i data-lucide="x" class="w-3 h-3"></i>
-                            </button>
+                    <div id="imagePreviewArea" class="image-preview hidden">
+                        <div class="image-preview-content">
+                            <img id="previewThumb" src="" alt="Preview" class="preview-thumb">
+                            <button onclick="removeImage()" class="remove-preview-btn">&times;</button>
                         </div>
                     </div>
 
                     <!-- Input Box -->
-                    <div class="glass rounded-2xl p-2 flex items-end gap-2 input-ring">
-                        <button onclick="document.getElementById('imageInput').click()"
-                            class="w-10 h-10 rounded-xl hover:bg-gray-700/50 flex items-center justify-center text-gray-400 hover:text-white shrink-0">
-                            <i data-lucide="image" class="w-5 h-5"></i>
+                    <div class="input-box">
+                        <button onclick="document.getElementById('imageInput').click()" class="input-btn" title="Upload image">
+                            &#128206;
                         </button>
-                        <input type="file" id="imageInput" accept="image/*" onchange="handleImageSelect(event)" class="hidden">
+                        <input type="file" id="imageInput" accept="image/*" onchange="handleImageSelect(event)" class="file-input">
 
                         <textarea id="textInput"
-                            placeholder="Hỏi về hợp chất hóa học... (Ctrl+V để dán ảnh)"
+                            placeholder="Hỏi về hợp chất hóa học, công thức, bảng tuần hoàn..."
                             rows="1"
                             onkeydown="handleKeyDown(event)"
                             oninput="autoResize(this)"
-                            class="flex-1 bg-transparent border-none outline-none resize-none text-sm py-2.5 placeholder-gray-500 max-h-32"></textarea>
+                            class="text-input"></textarea>
 
-                        <button id="sendBtn" onclick="sendMessage()"
-                            class="w-10 h-10 rounded-xl bg-chemistry-600 hover:bg-chemistry-500 flex items-center justify-center shrink-0 btn-glow disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i data-lucide="send" class="w-4 h-4"></i>
+                        <button id="sendBtn" onclick="sendMessage()" class="send-btn" title="Send">
+                            &#10148;
                         </button>
                     </div>
 
-                    <p class="text-center text-xs text-gray-600 mt-3">
+                    <p class="input-disclaimer">
                         CHEMI có thể mắc lỗi. Hãy kiểm tra thông tin quan trọng.
                     </p>
                 </div>
@@ -296,24 +1058,20 @@
     </div>
 
     <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-
         // State
         let threadId = null;
         let selectedImage = null;
         let selectedImageBase64 = null;
         let isLoading = false;
         let chatHistory = [];
-        let allSessions = []; // All saved sessions
+        let allSessions = [];
 
         const API_BASE = window.location.origin;
 
-        // Storage config
         const STORAGE_CONFIG = {
-            maxSessions: 10,        // Max sessions to keep
-            maxMessagesPerSession: 50,  // Max messages per session
-            maxStorageSize: 4 * 1024 * 1024, // 4MB limit
+            maxSessions: 10,
+            maxMessagesPerSession: 50,
+            maxStorageSize: 4 * 1024 * 1024,
         };
 
         // Initialize
@@ -323,7 +1081,6 @@
             setupPasteHandler();
         });
 
-        // Paste handler
         function setupPasteHandler() {
             document.addEventListener('paste', handlePaste);
         }
@@ -355,13 +1112,11 @@
         // Session Management
         function loadSession() {
             try {
-                // Load all sessions
                 const savedSessions = localStorage.getItem('chemi_sessions');
                 if (savedSessions) {
                     allSessions = JSON.parse(savedSessions);
                 }
 
-                // Load current session
                 const currentId = localStorage.getItem('chemi_current_session');
                 if (currentId) {
                     const session = allSessions.find(s => s.threadId === currentId);
@@ -386,18 +1141,14 @@
             if (!threadId || chatHistory.length === 0) return;
 
             try {
-                // Prepare messages for storage (strip media for old messages)
                 const messagesForStorage = chatHistory.map((msg, idx) => {
-                    // Keep media only for last 5 messages
                     const isRecent = idx >= chatHistory.length - 5;
                     return {
                         role: msg.role,
                         text: msg.text,
                         error: msg.error,
-                        // Only keep media references, not full base64 for older messages
                         hasImage: !!msg.userImage || !!msg.structureImage,
                         hasAudio: !!msg.audio,
-                        // Keep actual media only for recent messages
                         userImage: isRecent ? msg.userImage : null,
                         structureImage: isRecent ? msg.structureImage : null,
                         audio: isRecent ? msg.audio : null,
@@ -405,11 +1156,10 @@
                     };
                 });
 
-                // Find or create session
                 const existingIdx = allSessions.findIndex(s => s.threadId === threadId);
                 const sessionData = {
                     threadId,
-                    title: chatHistory[0]?.text?.slice(0, 30) || 'Cuộc trò chuyện',
+                    title: chatHistory[0]?.text?.slice(0, 30) || 'New chat',
                     messages: messagesForStorage.slice(-STORAGE_CONFIG.maxMessagesPerSession),
                     updatedAt: Date.now()
                 };
@@ -420,34 +1170,26 @@
                     allSessions.unshift(sessionData);
                 }
 
-                // Sort by most recent
                 allSessions.sort((a, b) => b.updatedAt - a.updatedAt);
-
-                // Cleanup if needed
                 cleanupStorage();
-
-                // Save
                 localStorage.setItem('chemi_sessions', JSON.stringify(allSessions));
                 localStorage.setItem('chemi_current_session', threadId);
-
                 renderSessionList();
             } catch (e) {
                 console.error('Error saving session:', e);
                 if (e.name === 'QuotaExceededError') {
                     cleanupStorage(true);
-                    saveSession(); // Retry
+                    saveSession();
                 }
             }
         }
 
         function cleanupStorage(aggressive = false) {
-            // Remove excess sessions
             const maxSessions = aggressive ? 5 : STORAGE_CONFIG.maxSessions;
             if (allSessions.length > maxSessions) {
                 allSessions = allSessions.slice(0, maxSessions);
             }
 
-            // If aggressive, strip all media from non-current sessions
             if (aggressive) {
                 allSessions = allSessions.map(session => ({
                     ...session,
@@ -460,7 +1202,6 @@
                 }));
             }
 
-            // Check storage size
             const dataSize = new Blob([JSON.stringify(allSessions)]).size;
             if (dataSize > STORAGE_CONFIG.maxStorageSize && !aggressive) {
                 cleanupStorage(true);
@@ -468,7 +1209,6 @@
         }
 
         function startNewChat() {
-            // Save current session first
             if (threadId && chatHistory.length > 0) {
                 saveSession();
             }
@@ -482,11 +1222,10 @@
             showWelcome();
             document.getElementById('chatMessages').innerHTML = '';
             document.getElementById('imagePreviewArea').classList.add('hidden');
-            renderSessionList(); // Re-render to remove active state
+            renderSessionList();
         }
 
         function loadSessionById(id) {
-            // Save current first
             if (threadId && chatHistory.length > 0) {
                 saveSession();
             }
@@ -514,50 +1253,41 @@
             renderSessionList();
         }
 
-        function updateSessionDisplay() {
-            document.getElementById('sessionId').textContent = threadId ? threadId.slice(-8) : 'Mới';
-        }
+        function updateSessionDisplay() {}
 
         function renderSessionList() {
             const historyDiv = document.getElementById('chatHistory');
             historyDiv.innerHTML = '';
 
             allSessions.forEach(session => {
-                const item = document.createElement('div');
+                const item = document.createElement('button');
                 const isActive = session.threadId === threadId;
-                item.className = `flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer group ${isActive ? 'bg-gray-700/50' : 'hover:bg-gray-700/30'} text-sm text-gray-300`;
+                item.className = `history-item${isActive ? ' active' : ''}`;
                 item.onclick = () => loadSessionById(session.threadId);
 
                 const date = new Date(session.updatedAt);
                 const timeStr = date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
 
                 item.innerHTML = `
-                    <i data-lucide="message-square" class="w-4 h-4 text-gray-500 shrink-0"></i>
-                    <div class="flex-1 min-w-0">
-                        <div class="truncate">${escapeHtml(session.title)}...</div>
-                        <div class="text-xs text-gray-500">${timeStr}</div>
+                    <span class="history-item-icon">&#128172;</span>
+                    <div class="history-item-content">
+                        <div class="history-item-title">${escapeHtml(session.title)}</div>
+                        <div class="history-item-date">${timeStr}</div>
                     </div>
-                    <button onclick="deleteSession('${session.threadId}', event)"
-                        class="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-gray-500 hover:text-red-400">
-                        <i data-lucide="trash-2" class="w-3 h-3"></i>
-                    </button>
+                    <button onclick="deleteSession('${session.threadId}', event)" class="history-delete-btn">&#128465;</button>
                 `;
                 historyDiv.appendChild(item);
             });
-
-            lucide.createIcons();
         }
 
         // UI State
         function showWelcome() {
             document.getElementById('welcomeScreen').classList.remove('hidden');
-            document.getElementById('welcomeScreen').classList.add('flex');
             document.getElementById('chatMessages').classList.add('hidden');
         }
 
         function showMessages() {
             document.getElementById('welcomeScreen').classList.add('hidden');
-            document.getElementById('welcomeScreen').classList.remove('flex');
             document.getElementById('chatMessages').classList.remove('hidden');
         }
 
@@ -577,7 +1307,7 @@
         // Input handling
         function autoResize(textarea) {
             textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 128) + 'px';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         }
 
         function handleKeyDown(event) {
@@ -588,8 +1318,10 @@
         }
 
         function sendExample(text) {
-            document.getElementById('textInput').value = text;
-            sendMessage();
+            const input = document.getElementById('textInput');
+            input.value = text;
+            input.focus();
+            autoResize(input);
         }
 
         // Send message
@@ -648,27 +1380,24 @@
         function addMessage(role, text, userImage = null, structureImage = null, audio = null, error = null) {
             const messagesDiv = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message-enter flex gap-3 ${role === 'user' ? 'justify-end' : ''}`;
+            messageDiv.className = `message ${role}`;
 
             let content = '';
 
             if (role === 'user') {
                 content = `
-                    <div class="max-w-xl">
-                        <div class="bg-chemistry-600/80 rounded-2xl rounded-br-md px-4 py-3 text-sm">
-                            ${escapeHtml(text)}
-                        </div>
-                        ${userImage ? `<img src="${userImage}" class="mt-2 max-w-xs rounded-xl" alt="Uploaded">` : ''}
+                    <div class="message-avatar user">&#128100;</div>
+                    <div class="message-content">
+                        <div class="message-bubble">${escapeHtml(text)}</div>
+                        ${userImage ? `<img src="${userImage}" class="message-image" alt="Uploaded">` : ''}
                     </div>
                 `;
             } else {
                 if (error) {
                     content = `
-                        <div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0 text-red-400">
-                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                        </div>
-                        <div class="glass rounded-2xl rounded-bl-md px-4 py-3 max-w-xl">
-                            <p class="text-sm text-red-400">${escapeHtml(error)}</p>
+                        <div class="message-avatar error">!</div>
+                        <div class="message-content">
+                            <div class="message-bubble error">${escapeHtml(error)}</div>
                         </div>
                     `;
                 } else {
@@ -676,20 +1405,17 @@
                     if (structureImage) {
                         const imgSrc = structureImage.startsWith('http') ? structureImage : `data:image/png;base64,${structureImage}`;
                         mediaHtml += `
-                            <div class="mt-3 bg-white rounded-xl p-3 inline-block">
-                                <img src="${imgSrc}" alt="Cấu trúc" class="max-w-xs">
-                                <p class="text-xs text-gray-500 mt-2 text-center">Cấu trúc phân tử</p>
+                            <div class="structure-container">
+                                <img src="${imgSrc}" alt="Structure" class="structure-image">
                             </div>
                         `;
                     }
                     if (audio) {
                         const audioSrc = audio.startsWith('http') ? audio : `data:audio/wav;base64,${audio}`;
                         mediaHtml += `
-                            <div class="mt-3 glass rounded-xl p-3 max-w-xs">
-                                <p class="text-xs text-gray-400 mb-2 flex items-center gap-1">
-                                    <i data-lucide="volume-2" class="w-3 h-3"></i> Phát âm
-                                </p>
-                                <audio controls class="w-full">
+                            <div class="audio-container">
+                                <p class="audio-label">&#128266; Phát âm</p>
+                                <audio controls>
                                     <source src="${audioSrc}" type="audio/wav">
                                 </audio>
                             </div>
@@ -697,12 +1423,10 @@
                     }
 
                     content = `
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-chemistry-500 to-emerald-400 flex items-center justify-center shrink-0 text-sm">
-                            ⚗️
-                        </div>
-                        <div class="max-w-xl">
-                            <div class="glass rounded-2xl rounded-bl-md px-4 py-3">
-                                <div class="text-sm leading-relaxed prose-invert">${formatMarkdown(text || '')}</div>
+                        <div class="message-avatar bot">&#9879;</div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <div class="prose">${formatMarkdown(text || '')}</div>
                             </div>
                             ${mediaHtml}
                         </div>
@@ -714,9 +1438,6 @@
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-            // Reinitialize icons for new content
-            lucide.createIcons();
-
             chatHistory.push({ role, text, userImage, structureImage, audio, error });
             saveSession();
         }
@@ -726,16 +1447,16 @@
             const loadingDiv = document.createElement('div');
             const loadingId = 'loading-' + Date.now();
             loadingDiv.id = loadingId;
-            loadingDiv.className = 'message-enter flex gap-3';
+            loadingDiv.className = 'message bot';
             loadingDiv.innerHTML = `
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-chemistry-500 to-emerald-400 flex items-center justify-center shrink-0 text-sm">
-                    ⚗️
-                </div>
-                <div class="glass rounded-2xl rounded-bl-md px-4 py-3">
-                    <div class="flex gap-1">
-                        <span class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></span>
+                <div class="message-avatar bot">&#9879;</div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="typing">
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -754,64 +1475,54 @@
 
             chatHistory.forEach(msg => {
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`;
+                messageDiv.className = `message ${msg.role}`;
 
                 let content = '';
                 if (msg.role === 'user') {
-                    // Show placeholder if image was cleaned up
                     let imageHtml = '';
                     if (msg.userImage) {
-                        imageHtml = `<img src="${msg.userImage}" class="mt-2 max-w-xs rounded-xl" alt="Uploaded">`;
+                        imageHtml = `<img src="${msg.userImage}" class="message-image" alt="Uploaded">`;
                     } else if (msg.hasImage) {
-                        imageHtml = `<div class="mt-2 text-xs text-gray-500 italic flex items-center gap-1">
-                            <i data-lucide="image" class="w-3 h-3"></i> Hình ảnh đã được dọn dẹp
-                        </div>`;
+                        imageHtml = `<div class="media-placeholder">&#128444; Hình ảnh đã được dọn dẹp</div>`;
                     }
 
                     content = `
-                        <div class="max-w-xl">
-                            <div class="bg-chemistry-600/80 rounded-2xl rounded-br-md px-4 py-3 text-sm">
-                                ${escapeHtml(msg.text)}
-                            </div>
+                        <div class="message-avatar user">&#128100;</div>
+                        <div class="message-content">
+                            <div class="message-bubble">${escapeHtml(msg.text)}</div>
                             ${imageHtml}
                         </div>
                     `;
                 } else {
                     if (msg.error) {
                         content = `
-                            <div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0 text-red-400">!</div>
-                            <div class="glass rounded-2xl rounded-bl-md px-4 py-3 max-w-xl">
-                                <p class="text-sm text-red-400">${escapeHtml(msg.error)}</p>
+                            <div class="message-avatar error">!</div>
+                            <div class="message-content">
+                                <div class="message-bubble error">${escapeHtml(msg.error)}</div>
                             </div>
                         `;
                     } else {
                         let mediaHtml = '';
 
-                        // Structure image
                         if (msg.structureImage) {
                             const imgSrc = msg.structureImage.startsWith('http') ? msg.structureImage : `data:image/png;base64,${msg.structureImage}`;
-                            mediaHtml += `<div class="mt-3 bg-white rounded-xl p-3 inline-block"><img src="${imgSrc}" alt="Hình ảnh" class="max-w-xs"></div>`;
+                            mediaHtml += `<div class="structure-container"><img src="${imgSrc}" alt="Cấu trúc" class="structure-image"></div>`;
                         } else if (msg.hasImage) {
-                            mediaHtml += `<div class="mt-3 glass rounded-xl p-3 text-xs text-gray-500 italic flex items-center gap-1">
-                                <i data-lucide="image" class="w-3 h-3"></i> Hình ảnh cấu trúc đã được dọn dẹp
-                            </div>`;
+                            mediaHtml += `<div class="media-placeholder">&#128444; Hình ảnh cấu trúc đã được dọn dẹp</div>`;
                         }
 
-                        // Audio
                         if (msg.audio) {
                             const audioSrc = msg.audio.startsWith('http') ? msg.audio : `data:audio/wav;base64,${msg.audio}`;
-                            mediaHtml += `<div class="mt-3 glass rounded-xl p-3 max-w-xs"><p class="text-xs text-gray-400 mb-2 flex items-center gap-1"><i data-lucide="volume-2" class="w-3 h-3"></i> Phát âm</p><audio controls class="w-full"><source src="${audioSrc}" type="audio/wav"></audio></div>`;
+                            mediaHtml += `<div class="audio-container"><p class="audio-label">&#128266; Phát âm</p><audio controls><source src="${audioSrc}" type="audio/wav"></audio></div>`;
                         } else if (msg.hasAudio) {
-                            mediaHtml += `<div class="mt-3 glass rounded-xl p-3 text-xs text-gray-500 italic flex items-center gap-1">
-                                <i data-lucide="volume-x" class="w-3 h-3"></i> Audio đã được dọn dẹp
-                            </div>`;
+                            mediaHtml += `<div class="media-placeholder">&#128264; Audio đã được dọn dẹp</div>`;
                         }
 
                         content = `
-                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-chemistry-500 to-emerald-400 flex items-center justify-center shrink-0 text-sm">⚗️</div>
-                            <div class="max-w-xl">
-                                <div class="glass rounded-2xl rounded-bl-md px-4 py-3">
-                                    <div class="text-sm leading-relaxed">${formatMarkdown(msg.text || '')}</div>
+                            <div class="message-avatar bot">&#9879;</div>
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    <div class="prose">${formatMarkdown(msg.text || '')}</div>
                                 </div>
                                 ${mediaHtml}
                             </div>
@@ -822,8 +1533,6 @@
                 messageDiv.innerHTML = content;
                 messagesDiv.appendChild(messageDiv);
             });
-
-            lucide.createIcons();
         }
 
         // Utilities
@@ -837,9 +1546,9 @@
         function formatMarkdown(text) {
             if (!text) return '';
             let html = escapeHtml(text);
-            html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="text-chemistry-400">$1</strong>');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            html = html.replace(/`(.*?)`/g, '<code class="bg-gray-800 px-1.5 py-0.5 rounded text-xs">$1</code>');
+            html = html.replace(/`(.*?)`/g, '<code>$1</code>');
             html = html.replace(/\n/g, '<br>');
             return html;
         }

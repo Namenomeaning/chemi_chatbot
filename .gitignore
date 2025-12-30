@@ -108,3 +108,7 @@ deploy/DEPLOY.md
 
 # Claude Code local settings (keep skills/commands in repo if you want to share)
 .claude/settings.json
+
+# Local development configs
+docker-compose.local.yml
+nginx.local.conf
