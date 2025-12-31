@@ -1,6 +1,7 @@
 """CHEMI Agent - Agent ReAct cho chatbot hóa học."""
 
 import os
+import sqlite3
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
@@ -72,7 +73,11 @@ RECURSION_LIMIT = 10
 
 _agent = None
 _executor = ThreadPoolExecutor(max_workers=8)
-_checkpointer = SqliteSaver.from_conn_string("data/checkpoints.db")
+
+# Create sqlite connection for checkpointer
+os.makedirs("data", exist_ok=True)
+_conn = sqlite3.connect("data/checkpoints.db", check_same_thread=False)
+_checkpointer = SqliteSaver(_conn)
 
 
 def get_agent():
