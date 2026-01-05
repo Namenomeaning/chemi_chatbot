@@ -106,6 +106,12 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
         }
 
         .logo-icon {
@@ -901,7 +907,7 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="logo">
+                <div class="logo" onclick="startNewChat()" title="Về trang chủ">
                     <div class="logo-icon">&#9879;</div>
                     <div>
                         <div class="logo-text">CHEMI</div>
@@ -1142,18 +1148,12 @@
                     allSessions = JSON.parse(savedSessions);
                 }
 
-                const currentId = localStorage.getItem('chemi_current_session');
-                if (currentId) {
-                    const session = allSessions.find(s => s.threadId === currentId);
-                    if (session) {
-                        threadId = session.threadId;
-                        chatHistory = session.messages || [];
-                        if (chatHistory.length > 0) {
-                            renderChatHistory();
-                            showMessages();
-                        }
-                    }
-                }
+                // Always show home page on load - user can choose to load a session from sidebar
+                // Clear current session so we start fresh
+                localStorage.removeItem('chemi_current_session');
+                threadId = null;
+                chatHistory = [];
+                showWelcome();
 
                 renderSessionList();
             } catch (e) {
