@@ -933,6 +933,301 @@
 
         .icon-sm { width: 14px; height: 14px; }
         .icon-lg { width: 20px; height: 20px; }
+
+        /* ===== QUIZ COMPONENTS ===== */
+        .quiz-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-top: 12px;
+        }
+
+        .quiz-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .quiz-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quiz-level {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .quiz-question {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .quiz-audio-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 16px;
+            transition: all 0.15s ease;
+        }
+
+        .quiz-audio-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-color);
+        }
+
+        .quiz-input { margin-bottom: 16px; }
+
+        /* Radio Options (MCQ) */
+        .quiz-radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-radio-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .quiz-radio-option:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-muted);
+        }
+
+        .quiz-radio-option.selected {
+            border-color: var(--accent-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .quiz-radio-option.correct {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .quiz-radio-option.incorrect {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .quiz-radio-option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .quiz-radio-circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-light);
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quiz-radio-option.selected .quiz-radio-circle {
+            border-color: var(--accent-color);
+        }
+
+        .quiz-radio-option.selected .quiz-radio-circle::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        .quiz-radio-option.correct .quiz-radio-circle {
+            border-color: #22c55e;
+            background: #22c55e;
+        }
+
+        .quiz-radio-option.correct .quiz-radio-circle::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .quiz-radio-option.incorrect .quiz-radio-circle {
+            border-color: #ef4444;
+            background: #ef4444;
+        }
+
+        .quiz-radio-option.incorrect .quiz-radio-circle::after {
+            content: '✗';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Select Options (Matching) */
+        .quiz-select-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-select-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .quiz-select-left {
+            min-width: 100px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent-light);
+        }
+
+        .quiz-select-dropdown {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .quiz-select-dropdown:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        /* Text Input (Free Text) */
+        .quiz-text-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .quiz-text-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .quiz-text-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Submit Button */
+        .quiz-submit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .quiz-submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .quiz-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Result */
+        .quiz-result {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .quiz-result.correct {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .quiz-result.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .quiz-result-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .quiz-explanation {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .quiz-answer-list {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-sm);
+        }
+
+        .quiz-answer-pair {
+            padding: 4px 0;
+            font-size: 14px;
+        }
+
+        .quiz-answer-pair strong {
+            color: var(--accent-light);
+            font-family: 'SF Mono', Monaco, monospace;
+        }
     </style>
 </head>
 <body>
@@ -1044,40 +1339,58 @@
                     <p class="welcome-subtitle">Mình là trợ lý AI hỗ trợ gọi tên nguyên tố<br>và hợp chất hóa học theo chuẩn IUPAC</p>
 
                     <div class="features">
-                        <button onclick="sendExample('Gợi tên IUPAC cho C2H5OH')" class="feature-card iupac">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
-                            </div>
-                            <div class="feature-content">
-                                <div class="feature-title">Gọi tên IUPAC</div>
-                                <div class="feature-desc">Đặt tên nguyên tố và hợp chất theo chuẩn IUPAC</div>
-                            </div>
-                        </button>
-                        <button onclick="sendExample('Phát âm Ethanol')" class="feature-card speech">
-                            <div class="feature-icon">
-                                <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-                            </div>
-                            <div class="feature-content">
-                                <div class="feature-title">Phát âm tiếng Anh</div>
-                                <div class="feature-desc">Nghe cách phát âm tên chất chuẩn</div>
-                            </div>
-                        </button>
-                        <button onclick="sendExample('Cho tôi xem cấu trúc của Methane')" class="feature-card structure">
+                        <button onclick="sendExample('Ethanol là gì?')" class="feature-card iupac">
                             <div class="feature-icon">
                                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="4" r="2"/><circle cx="12" cy="20" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="20" cy="8" r="2"/><circle cx="4" cy="16" r="2"/><circle cx="20" cy="16" r="2"/><line x1="12" y1="9" x2="12" y2="6"/><line x1="12" y1="15" x2="12" y2="18"/><line x1="9.5" y1="10.5" x2="5.5" y2="9"/><line x1="14.5" y1="10.5" x2="18.5" y2="9"/><line x1="9.5" y1="13.5" x2="5.5" y2="15"/><line x1="14.5" y1="13.5" x2="18.5" y2="15"/></svg>
                             </div>
                             <div class="feature-content">
-                                <div class="feature-title">Minh họa cấu trúc</div>
-                                <div class="feature-desc">Xem hình ảnh cấu trúc phân tử</div>
+                                <div class="feature-title">Thông tin hợp chất</div>
+                                <div class="feature-desc">Ethanol là gì?</div>
                             </div>
                         </button>
-                        <button onclick="document.getElementById('imageInput').click()" class="feature-card image">
+                        <button onclick="sendExample('Cho tôi bài tập trắc nghiệm về alkane')" class="feature-card structure">
                             <div class="feature-icon">
-                                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                             </div>
                             <div class="feature-content">
-                                <div class="feature-title">Nhận dạng hình ảnh</div>
-                                <div class="feature-desc">Nhận dạng hợp chất từ hình ảnh công thức</div>
+                                <div class="feature-title">Bài tập trắc nghiệm</div>
+                                <div class="feature-desc">Cho tôi bài tập trắc nghiệm về alkane</div>
+                            </div>
+                        </button>
+                        <button onclick="sendExample('Bài tập nghe về alcohol')" class="feature-card speech">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                            </div>
+                            <div class="feature-content">
+                                <div class="feature-title">Bài tập nghe</div>
+                                <div class="feature-desc">Bài tập nghe về alcohol</div>
+                            </div>
+                        </button>
+                        <button onclick="sendExample('Bài tập ghép cặp về hydrocarbon')" class="feature-card image">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            </div>
+                            <div class="feature-content">
+                                <div class="feature-title">Bài tập ghép cặp</div>
+                                <div class="feature-desc">Bài tập ghép cặp về hydrocarbon</div>
+                            </div>
+                        </button>
+                        <button onclick="sendExample('Bài tập tự luận về danh pháp IUPAC')" class="feature-card quiz">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            </div>
+                            <div class="feature-content">
+                                <div class="feature-title">Bài tập tự luận</div>
+                                <div class="feature-desc">Bài tập tự luận về danh pháp IUPAC</div>
+                            </div>
+                        </button>
+                        <button onclick="sendExample('Phát âm Methane')" class="feature-card pronunciation">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                            </div>
+                            <div class="feature-content">
+                                <div class="feature-title">Phát âm tiếng Anh</div>
+                                <div class="feature-desc">Phát âm Methane</div>
                             </div>
                         </button>
                     </div>
@@ -1133,6 +1446,7 @@
         let isLoading = false;
         let chatHistory = [];
         let allSessions = [];
+        let currentQuiz = null;
 
         const API_BASE = window.location.origin;
 
@@ -1141,6 +1455,17 @@
             maxMessagesPerSession: 50,
             maxStorageSize: 4 * 1024 * 1024,
         };
+
+        function processImageFile(file) {
+            selectedImage = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedImageBase64 = e.target.result.split(',')[1];
+                document.getElementById('previewThumb').src = e.target.result;
+                document.getElementById('imagePreviewArea').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -1164,17 +1489,6 @@
                     break;
                 }
             }
-        }
-
-        function processImageFile(file) {
-            selectedImage = file;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                selectedImageBase64 = e.target.result.split(',')[1];
-                document.getElementById('previewThumb').src = e.target.result;
-                document.getElementById('imagePreviewArea').classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
         }
 
         // Session Management
@@ -1214,6 +1528,7 @@
                         userImage: isRecent ? msg.userImage : null,
                         structureImage: isRecent ? msg.structureImage : null,
                         audio: isRecent ? msg.audio : null,
+                        quizData: msg.quizData,
                         timestamp: msg.timestamp || Date.now()
                     };
                 });
@@ -1425,9 +1740,9 @@
                     threadId = data.thread_id;
                     updateSessionDisplay();
                     saveSession();
-                    addMessage('bot', data.text_response, null, data.image_base64, data.audio_base64);
+                    addMessage('bot', data.text_response, null, data.image_base64, data.audio_base64, null, data.quiz_data);
                 } else {
-                    addMessage('bot', null, null, null, null, data.error || 'Có lỗi xảy ra.');
+                    addMessage('bot', null, null, null, null, data.error || 'Có lỗi xảy ra.', null);
                 }
             } catch (error) {
                 removeLoadingMessage(loadingId);
@@ -1439,7 +1754,7 @@
         }
 
         // Message rendering
-        function addMessage(role, text, userImage = null, structureImage = null, audio = null, error = null) {
+        function addMessage(role, text, userImage = null, structureImage = null, audio = null, error = null, quizData = null) {
             const messagesDiv = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
@@ -1472,7 +1787,8 @@
                             </div>
                         `;
                     }
-                    if (audio) {
+                    // Only show audio if NOT listening quiz (listening quiz audio will be inside quiz)
+                    if (audio && (!quizData || quizData.type !== 'listening')) {
                         const audioSrc = audio.startsWith('http') ? audio : `data:audio/wav;base64,${audio}`;
                         mediaHtml += `
                             <div class="audio-container">
@@ -1482,6 +1798,10 @@
                                 </audio>
                             </div>
                         `;
+                    }
+                    // Render quiz if present (pass audio for listening type)
+                    if (quizData && quizData.quiz_id) {
+                        mediaHtml += renderQuiz(quizData, audio);
                     }
 
                     content = `
@@ -1500,7 +1820,7 @@
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-            chatHistory.push({ role, text, userImage, structureImage, audio, error });
+            chatHistory.push({ role, text, userImage, structureImage, audio, error, quizData });
             saveSession();
         }
 
@@ -1580,6 +1900,11 @@
                             mediaHtml += `<div class="media-placeholder">&#128264; Audio đã được dọn dẹp</div>`;
                         }
 
+                        // Render quiz if present (show as completed/disabled for history)
+                        if (msg.quizData && msg.quizData.quiz_id) {
+                            mediaHtml += renderQuizFromHistory(msg.quizData);
+                        }
+
                         content = `
                             <div class="message-avatar bot">&#9879;</div>
                             <div class="message-content">
@@ -1595,6 +1920,51 @@
                 messageDiv.innerHTML = content;
                 messagesDiv.appendChild(messageDiv);
             });
+        }
+
+        // Render quiz from history (display only, no interaction)
+        function renderQuizFromHistory(quiz) {
+            let html = `<div class="quiz-container" data-quiz-id="${quiz.quiz_id}">`;
+            html += `<div class="quiz-header">`;
+            html += `<span class="quiz-badge">${escapeHtml(quiz.type.toUpperCase())}</span>`;
+            html += `</div>`;
+            html += `<div class="quiz-question">${escapeHtml(quiz.question_text)}</div>`;
+
+            // Show options as disabled
+            if (quiz.input_type === 'radio' && quiz.options) {
+                html += '<div class="quiz-input"><div class="quiz-radio-group">';
+                quiz.options.forEach(opt => {
+                    const isCorrect = opt.charAt(0).toUpperCase() === quiz.correct_answer.toUpperCase();
+                    html += `<div class="quiz-radio-option disabled ${isCorrect ? 'correct' : ''}">`;
+                    html += `<div class="quiz-radio-circle"></div>`;
+                    html += `<span>${escapeHtml(opt)}</span>`;
+                    html += `</div>`;
+                });
+                html += '</div></div>';
+            }
+
+            // Format answer for display
+            let formattedAnswer = escapeHtml(quiz.correct_answer);
+            if (quiz.input_type === 'select') {
+                try {
+                    const pairs = JSON.parse(quiz.correct_answer);
+                    formattedAnswer = '<div class="quiz-answer-list">' +
+                        Object.entries(pairs)
+                            .map(([left, right]) => `<div class="quiz-answer-pair"><strong>${escapeHtml(left)}</strong> → ${escapeHtml(right)}</div>`)
+                            .join('') +
+                        '</div>';
+                } catch (e) {}
+            }
+
+            html += `<div class="quiz-result correct">`;
+            html += `<span class="quiz-result-icon">&#10004;</span>`;
+            html += `<span>Đáp án:</span>`;
+            html += quiz.input_type === 'select' ? formattedAnswer : ` <strong>${formattedAnswer}</strong>`;
+            html += `<div class="quiz-explanation">${escapeHtml(quiz.explanation || '')}</div>`;
+            html += `</div>`;
+            html += `</div>`;
+
+            return html;
         }
 
         // Utilities
@@ -1614,6 +1984,224 @@
             html = html.replace(/\n/g, '<br>');
             return html;
         }
+
+        // ============== QUIZ FUNCTIONS ==============
+
+        function renderQuiz(quiz, audio = null) {
+            currentQuiz = quiz;
+
+            let html = `<div class="quiz-container" data-quiz-id="${quiz.quiz_id}">`;
+            html += `<div class="quiz-header">`;
+            html += `<span class="quiz-badge">${escapeHtml(quiz.type.toUpperCase())}</span>`;
+            html += `</div>`;
+
+            // Audio player for listening type
+            if (quiz.type === 'listening' && audio) {
+                const audioSrc = audio.startsWith('http') ? audio : `data:audio/wav;base64,${audio}`;
+                html += `
+                    <div class="audio-container" style="margin-bottom: 16px;">
+                        <p class="audio-label">&#128266; Nghe mô tả và chọn đáp án</p>
+                        <audio controls style="width: 100%;">
+                            <source src="${audioSrc}" type="audio/wav">
+                        </audio>
+                    </div>
+                `;
+            }
+
+            html += `<div class="quiz-question">${escapeHtml(quiz.question_text)}</div>`;
+            html += `<div class="quiz-input">`;
+
+            // Render input based on input_type
+            switch(quiz.input_type) {
+                case 'radio':
+                    html += renderRadioInput(quiz.options || []);
+                    break;
+                case 'select':
+                    html += renderSelectInput(quiz.match_items || []);
+                    break;
+                case 'text':
+                    html += `<input type="text" class="quiz-text-input" placeholder="Nhập câu trả lời..." onkeydown="if(event.key==='Enter')submitQuizAnswer()">`;
+                    break;
+            }
+
+            html += `</div>`;
+            html += `<button class="quiz-submit-btn" onclick="submitQuizAnswer()">&#10003; Trả lời</button>`;
+            html += `<div class="quiz-result-area"></div>`;
+            html += `</div>`;
+
+            return html;
+        }
+
+        function renderRadioInput(options) {
+            let html = '<div class="quiz-radio-group">';
+            options.forEach((opt, idx) => {
+                html += `<div class="quiz-radio-option" onclick="selectRadioOption(this, '${escapeHtml(opt.charAt(0))}')">`;
+                html += `<div class="quiz-radio-circle"></div>`;
+                html += `<span>${escapeHtml(opt)}</span>`;
+                html += `</div>`;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function renderSelectInput(matchItems) {
+            let html = '<div class="quiz-select-group">';
+            matchItems.forEach((item, idx) => {
+                html += `<div class="quiz-select-row">`;
+                html += `<span class="quiz-select-left">${escapeHtml(item.left)}</span>`;
+                html += `<select class="quiz-select-dropdown" data-left="${escapeHtml(item.left)}">`;
+                html += `<option value="">-- Chọn --</option>`;
+                (item.right_options || []).forEach(opt => {
+                    html += `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`;
+                });
+                html += `</select>`;
+                html += `</div>`;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function selectRadioOption(element, value) {
+            const container = element.closest('.quiz-container');
+            if (container.querySelector('.quiz-result')) return; // Already answered
+
+            container.querySelectorAll('.quiz-radio-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            element.dataset.value = value;
+        }
+
+        function getQuizAnswer(inputType) {
+            const container = document.querySelector(`.quiz-container[data-quiz-id="${currentQuiz.quiz_id}"]`);
+            if (!container) return null;
+
+            switch(inputType) {
+                case 'radio':
+                    const selected = container.querySelector('.quiz-radio-option.selected');
+                    return selected ? selected.dataset.value : null;
+                case 'select':
+                    const pairs = {};
+                    container.querySelectorAll('.quiz-select-dropdown').forEach(sel => {
+                        if (sel.value) pairs[sel.dataset.left] = sel.value;
+                    });
+                    return JSON.stringify(pairs);
+                case 'text':
+                    const input = container.querySelector('.quiz-text-input');
+                    return input ? input.value.trim() : null;
+            }
+            return null;
+        }
+
+        function submitQuizAnswer() {
+            if (!currentQuiz) return;
+
+            const answer = getQuizAnswer(currentQuiz.input_type);
+            if (!answer) {
+                alert('Vui lòng chọn hoặc nhập câu trả lời!');
+                return;
+            }
+
+            const container = document.querySelector(`.quiz-container[data-quiz-id="${currentQuiz.quiz_id}"]`);
+            if (!container) return;
+
+            // Disable further input
+            container.querySelectorAll('.quiz-radio-option').forEach(opt => opt.classList.add('disabled'));
+            container.querySelectorAll('.quiz-select-dropdown').forEach(sel => sel.disabled = true);
+            container.querySelectorAll('.quiz-text-input').forEach(inp => inp.disabled = true);
+            container.querySelector('.quiz-submit-btn').disabled = true;
+
+            if (currentQuiz.check_method === 'exact') {
+                // Frontend check - instant feedback
+                const isCorrect = checkExactAnswer(currentQuiz, answer);
+                showQuizResult(container, isCorrect, currentQuiz.explanation, currentQuiz.correct_answer);
+                showFollowUp();
+            } else {
+                // Fuzzy check - send to LLM
+                const textInput = document.getElementById('textInput');
+                textInput.value = `Câu trả lời của tôi: ${answer}`;
+                sendMessage();
+            }
+        }
+
+        function checkExactAnswer(quiz, answer) {
+            if (quiz.input_type === 'select') {
+                // For matching, compare JSON
+                try {
+                    const userPairs = JSON.parse(answer);
+                    const correctPairs = JSON.parse(quiz.correct_answer);
+                    return JSON.stringify(userPairs) === JSON.stringify(correctPairs);
+                } catch {
+                    return false;
+                }
+            }
+            // For radio (MCQ), compare single letter
+            return answer.toUpperCase() === quiz.correct_answer.toUpperCase();
+        }
+
+        function showQuizResult(container, isCorrect, explanation, correctAnswer) {
+            // Highlight correct/incorrect options for radio type
+            if (currentQuiz.input_type === 'radio') {
+                container.querySelectorAll('.quiz-radio-option').forEach(opt => {
+                    const optLetter = opt.dataset.value || opt.textContent.trim().charAt(0);
+                    if (optLetter.toUpperCase() === correctAnswer.toUpperCase()) {
+                        opt.classList.add('correct');
+                    } else if (opt.classList.contains('selected')) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+            }
+
+            const resultArea = container.querySelector('.quiz-result-area');
+            const icon = isCorrect ? '&#10004;' : '&#10008;';
+            const resultClass = isCorrect ? 'correct' : 'incorrect';
+
+            // Format correct answer for matching type
+            let formattedAnswer = correctAnswer;
+            if (currentQuiz.input_type === 'select') {
+                try {
+                    const pairs = JSON.parse(correctAnswer);
+                    formattedAnswer = Object.entries(pairs)
+                        .map(([left, right]) => `<div class="quiz-answer-pair"><strong>${escapeHtml(left)}</strong> → ${escapeHtml(right)}</div>`)
+                        .join('');
+                } catch (e) {
+                    formattedAnswer = escapeHtml(correctAnswer);
+                }
+            }
+
+            const resultText = isCorrect
+                ? 'Chính xác!'
+                : `Sai rồi! Đáp án đúng:`;
+
+            resultArea.innerHTML = `
+                <div class="quiz-result ${resultClass}">
+                    <span class="quiz-result-icon">${icon}</span>
+                    <span>${resultText}</span>
+                    ${!isCorrect && currentQuiz.input_type === 'select' ? `<div class="quiz-answer-list">${formattedAnswer}</div>` : (!isCorrect ? ` <strong>${escapeHtml(correctAnswer)}</strong>` : '')}
+                    <div class="quiz-explanation">${escapeHtml(explanation)}</div>
+                </div>
+            `;
+        }
+
+        function showFollowUp() {
+            // Add a simple bot message asking if they want more questions
+            setTimeout(() => {
+                const messagesDiv = document.getElementById('chatMessages');
+                const followUpDiv = document.createElement('div');
+                followUpDiv.className = 'message bot';
+                followUpDiv.innerHTML = `
+                    <div class="message-avatar bot">&#9879;</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="prose">Bạn có muốn làm thêm câu hỏi khác không? &#128218;</div>
+                        </div>
+                    </div>
+                `;
+                messagesDiv.appendChild(followUpDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 500);
+        }
+
     </script>
 </body>
 </html>

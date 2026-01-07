@@ -39,6 +39,7 @@ class QueryResponse(BaseModel):
     text_response: Optional[str] = None
     image_base64: Optional[str] = None
     audio_base64: Optional[str] = None
+    quiz_data: Optional[dict] = None
     error: Optional[str] = None
 
 
@@ -85,17 +86,25 @@ async def process_query(
 
     if not (sr := result.get("structured_response")):
         return QueryResponse(success=False, thread_id=thread_id, error="No response from agent")
+
+    # Convert quiz_data from Pydantic model to dict if present
+    quiz_data = None
+    if sr.quiz_data:
+        quiz_data = sr.quiz_data.model_dump() if hasattr(sr.quiz_data, 'model_dump') else sr.quiz_data
+
     response = QueryResponse(
         success=True,
         thread_id=thread_id,
         text_response=sr.text_response,
         image_base64=to_base64(sr.image_url),
         audio_base64=to_base64(sr.audio_url),
+        quiz_data=quiz_data,
     )
-    # Log response with truncated base64
+    # Log response
     img_len = len(response.image_base64) if response.image_base64 else 0
     audio_len = len(response.audio_base64) if response.audio_base64 else 0
-    logger.info(f"Response: text={response.text_response[:80]}... | image={img_len} chars | audio={audio_len} chars")
+    quiz_type = quiz_data.get("type") if quiz_data else None
+    logger.info(f"Response: text={response.text_response[:80]}... | image={img_len} chars | audio={audio_len} chars | quiz={quiz_type}")
     return response
 
 
