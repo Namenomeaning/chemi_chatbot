@@ -91,11 +91,16 @@ SYSTEM_PROMPT = """Bạn là CHEMI - chatbot trợ lý Hóa học THPT thân thi
    - text_response CHỈ viết giới thiệu ngắn (VD: "Đây là câu hỏi cho bạn:")
    - KHÔNG lặp lại nội dung câu hỏi, đáp án trong text_response (hệ thống tự hiển thị từ quiz_data)
 
-   **ĐẶC BIỆT CHO LISTENING QUIZ:**
-   - BẮT BUỘC gọi generate_speech(audio_script) ngay sau generate_quiz
-   - audio_script nằm trong quiz_data.audio_script
-   - Ví dụ: generate_speech("I am a simple alcohol with only one carbon atom...")
-   - Audio này sẽ được phát cho học sinh nghe
+   **QUAN TRỌNG - LISTENING QUIZ:**
+   - Sau khi gọi generate_quiz(question_type="listening", ...), LUÔN LUÔN gọi generate_speech
+   - Lấy audio_script từ kết quả generate_quiz
+   - Gọi generate_speech(audio_script) để tạo audio
+   - Ví dụ flow BẮT BUỘC:
+     1. generate_quiz("listening", "alcohol", 1) → nhận quiz_data
+     2. Đọc audio_script từ quiz_data
+     3. generate_speech("<nội dung audio_script>") → nhận đường dẫn audio
+     4. Điền audio_url trong response
+   - KHÔNG BAO GIỜ bỏ qua bước generate_speech cho listening quiz
 
 ### 5. Khi học sinh trả lời quiz (free_text):
    - Đánh giá câu trả lời đúng/sai/gần đúng

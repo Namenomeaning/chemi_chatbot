@@ -87,25 +87,36 @@ async def process_query(
     if not (sr := result.get("structured_response")):
         return QueryResponse(success=False, thread_id=thread_id, error="No response from agent")
 
-    # Convert quiz_data from Pydantic model to dict if present
-    quiz_data = None
-    if sr.quiz_data:
-        quiz_data = sr.quiz_data.model_dump() if hasattr(sr.quiz_data, 'model_dump') else sr.quiz_data
+    try:
+        # Convert quiz_data from Pydantic model to dict if present
+        quiz_data = None
+        if sr.quiz_data:
+            logger.info(f"Converting quiz_data: {type(sr.quiz_data)}")
+            quiz_data = sr.quiz_data.model_dump() if hasattr(sr.quiz_data, 'model_dump') else sr.quiz_data
 
-    response = QueryResponse(
-        success=True,
-        thread_id=thread_id,
-        text_response=sr.text_response,
-        image_base64=to_base64(sr.image_url),
-        audio_base64=to_base64(sr.audio_url),
-        quiz_data=quiz_data,
-    )
-    # Log response
-    img_len = len(response.image_base64) if response.image_base64 else 0
-    audio_len = len(response.audio_base64) if response.audio_base64 else 0
-    quiz_type = quiz_data.get("type") if quiz_data else None
-    logger.info(f"Response: text={response.text_response[:80]}... | image={img_len} chars | audio={audio_len} chars | quiz={quiz_type}")
-    return response
+        logger.info(f"Converting image_url: {sr.image_url}")
+        image_b64 = to_base64(sr.image_url)
+
+        logger.info(f"Converting audio_url: {sr.audio_url}")
+        audio_b64 = to_base64(sr.audio_url)
+
+        response = QueryResponse(
+            success=True,
+            thread_id=thread_id,
+            text_response=sr.text_response,
+            image_base64=image_b64,
+            audio_base64=audio_b64,
+            quiz_data=quiz_data,
+        )
+        # Log response
+        img_len = len(response.image_base64) if response.image_base64 else 0
+        audio_len = len(response.audio_base64) if response.audio_base64 else 0
+        quiz_type = quiz_data.get("type") if quiz_data else None
+        logger.info(f"Response: text={response.text_response[:80]}... | image={img_len} chars | audio={audio_len} chars | quiz={quiz_type}")
+        return response
+    except Exception as e:
+        logger.error(f"Error creating response: {e}", exc_info=True)
+        raise HTTPException(500, f"Response creation error: {str(e)}") from e
 
 
 # ============== FastAPI App ==============
