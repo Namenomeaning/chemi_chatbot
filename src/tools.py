@@ -1,4 +1,9 @@
-"""Các công cụ (tools) cho chatbot hóa học."""
+"""Tập hợp công cụ hỗ trợ CHEMI trong quá trình trả lời.
+
+- Tìm kiếm hình ảnh (cấu trúc, thực tế, sơ đồ)
+- Tạo giọng đọc tiếng Anh từ văn bản
+- Sinh câu hỏi luyện tập theo chủ đề và mức độ
+"""
 
 import os
 import json
@@ -17,16 +22,16 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Audio output directory
+# Thư mục lưu file âm thanh tạo ra (để phát lại cho người dùng)
 AUDIO_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "tts_output"
 AUDIO_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Shared Groq client
+# Client Groq dùng chung
 _groq_client = None
 
 
 def get_groq_client():
-    """Lấy hoặc khởi tạo Groq client."""
+    """Khởi tạo và tái sử dụng client Groq phục vụ tổng hợp giọng nói."""
     global _groq_client
     if not _groq_client:
         _groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -35,17 +40,15 @@ def get_groq_client():
 
 @tool
 def search_image(keyword: str) -> str:
-    """Tìm kiếm hình ảnh hóa học từ Internet (cấu trúc, thực tế, sơ đồ, v.v.).
+    """Tìm hình ảnh phù hợp với từ khóa.
 
-    Args:
-        keyword: Từ khóa tìm kiếm. Ví dụ:
-            - "ethanol structure" → công thức cấu tạo
-            - "ethanol bottle" → hình ảnh thực tế
-            - "ethanol 3d model" → mô hình 3D
-            - "chemistry lab" → phòng thí nghiệm
+    Ví dụ từ khóa:
+    - "ethanol structure" (cấu trúc)
+    - "ethanol bottle" (hình thực tế)
+    - "ethanol 3d model" (mô hình 3D)
+    - "chemistry lab" (phòng thí nghiệm)
 
-    Returns:
-        URL hình ảnh hoặc thông báo lỗi.
+    Trả về URL hình ảnh hoặc thông báo lỗi.
     """
     for attempt in range(3):
         try:
@@ -64,14 +67,11 @@ def search_image(keyword: str) -> str:
 
 @tool
 def generate_speech(text: str, voice: str = "autumn") -> str:
-    """Tạo âm thanh phát âm cho văn bản.
+    """Chuyển văn bản thành giọng đọc tiếng Anh và lưu thành tệp âm thanh.
 
-    Args:
-        text: Văn bản cần phát âm
-        voice: Giọng nói Orpheus (autumn, breeze, cove, juniper, etc.)
-
-    Returns:
-        Đường dẫn tệp audio hoặc thông báo lỗi.
+    - text: nội dung cần đọc (ví dụ: tên IUPAC, đoạn mô tả)
+    - voice: giọng đọc (ví dụ: autumn, breeze, cove, juniper)
+    - Kết quả: đường dẫn tệp âm thanh
     """
     try:
         client = get_groq_client()
@@ -93,7 +93,7 @@ def generate_speech(text: str, voice: str = "autumn") -> str:
         return f"Lỗi: Không thể tạo âm thanh - {e}"
 
 
-# ============== Quiz Generation ==============
+# ============== Tạo Quiz ==============
 
 QUIZ_SYSTEM_PROMPT = """Bạn là chuyên gia soạn câu hỏi Hóa học THPT Việt Nam (sách Kết nối tri thức).
 
@@ -235,15 +235,12 @@ CHỈ trả về JSON, không có text khác."""
 
 @tool
 def generate_quiz(question_type: str, topic: str = "random", level: int = 1) -> str:
-    """Tạo câu hỏi luyện tập Hóa học.
+    """Tạo câu hỏi luyện tập theo chủ đề và mức độ.
 
-    Args:
-        question_type: Loại câu hỏi - "mcq" | "matching" | "free_text" | "listening"
-        topic: Chủ đề (ví dụ: "ethanol", "alkane", "random")
-        level: Độ khó 1-4 (1=nhận biết, 2=thông hiểu, 3=vận dụng, 4=nâng cao)
-
-    Returns:
-        JSON string chứa cấu trúc quiz hoàn chỉnh.
+    - question_type: dạng câu hỏi (mcq, matching, free_text, listening)
+    - topic: chủ đề (vd: "ethanol", "alkane" hoặc "random")
+    - level: độ khó 1–4 (1 dễ – 4 khó)
+    - Trả về: chuỗi JSON mô tả nội dung, cấu hình nhập và cách chấm
     """
     level_desc = {
         1: "Nhận biết - câu hỏi đơn giản, trực tiếp",

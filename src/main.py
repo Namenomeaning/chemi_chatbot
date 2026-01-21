@@ -1,4 +1,8 @@
-"""CHEMI - Backend FastAPI cho Chatbot Hóa học."""
+"""CHEMI – máy chủ FastAPI cung cấp API cho chatbot Hóa học.
+
+Cung cấp các điểm cuối để nhận truy vấn và trả kết quả (văn bản, hình ảnh,
+âm thanh, câu hỏi luyện tập).
+"""
 
 import os
 import base64
@@ -8,7 +12,7 @@ from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -18,35 +22,71 @@ from src.agent import invoke_agent, ChemistryResponse
 
 load_dotenv()
 
-# Setup logging
+# Thiết lập logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# ============== Request/Response Schemas ==============
+# ============== Mẫu dữ liệu gửi lên/nhận về (Request/Response) ==============
 
 class QueryRequest(BaseModel):
-    """Request API cho truy vấn văn bản/hình ảnh."""
-    text: Optional[str] = None
-    image_base64: Optional[str] = None
-    thread_id: Optional[str] = None
+    """Mẫu dữ liệu yêu cầu mà giao diện gửi lên.
+
+    Có thể gồm văn bản, hoặc kèm ảnh dưới dạng base64.
+    """
+    text: Optional[str] = Field(
+        default=None,
+        description="Nội dung văn bản người dùng nhập"
+    )
+    image_base64: Optional[str] = Field(
+        default=None,
+        description="Ảnh mã hóa base64 (PNG/JPEG), nếu có"
+    )
+    thread_id: Optional[str] = Field(
+        default=None,
+        description="Mã hội thoại để duy trì ngữ cảnh; tự tạo nếu bỏ trống"
+    )
 
 
 class QueryResponse(BaseModel):
-    """Response API trả về cho client."""
-    success: bool
-    thread_id: str
-    text_response: Optional[str] = None
-    image_base64: Optional[str] = None
-    audio_base64: Optional[str] = None
-    quiz_data: Optional[dict] = None
-    error: Optional[str] = None
+    """Mẫu dữ liệu phản hồi cho giao diện hiển thị.
+
+    Bao gồm văn bản, hình ảnh/âm thanh (nếu có) và dữ liệu quiz.
+    """
+    success: bool = Field(
+        ...,
+        description="Trạng thái xử lý (thành công/thất bại)"
+    )
+    thread_id: str = Field(
+        ...,
+        description="Mã hội thoại tương ứng với yêu cầu"
+    )
+    text_response: Optional[str] = Field(
+        default=None,
+        description="Câu trả lời bằng tiếng Việt"
+    )
+    image_base64: Optional[str] = Field(
+        default=None,
+        description="Hình ảnh trả về: base64 hoặc URL nếu là đường dẫn web"
+    )
+    audio_base64: Optional[str] = Field(
+        default=None,
+        description="Âm thanh trả về: base64 hoặc URL nếu là đường dẫn web"
+    )
+    quiz_data: Optional[dict] = Field(
+        default=None,
+        description="Dữ liệu câu hỏi luyện tập (nếu có)"
+    )
+    error: Optional[str] = Field(
+        default=None,
+        description="Thông báo lỗi (nếu có)"
+    )
 
 
-# ============== Helpers ==============
+# ============== Hàm tiện ích ==============
 
 def to_base64(file_path: Optional[str]) -> Optional[str]:
-    """Chuyển đổi file cục bộ sang base64 hoặc trả về URL trực tiếp."""
+    """Chuyển tệp cục bộ sang base64; nếu đã là URL thì giữ nguyên."""
     if not file_path:
         return None
     if file_path.startswith(("http://", "https://")):
@@ -60,13 +100,16 @@ async def process_query(
     image_base64: Optional[str],
     thread_id: Optional[str]
 ) -> QueryResponse:
-    """Xử lý truy vấn và trả về kết quả."""
+    """Xử lý truy vấn và tổng hợp phản hồi.
+
+    Luồng xử lý: nhận văn bản/ảnh → gọi agent → chuyển đổi hình/âm thanh nếu cần → trả về.
+    """
     if not text and not image_base64:
         raise HTTPException(400, "text or image required")
 
     thread_id = thread_id or f"thread-{os.urandom(8).hex()}"
 
-    # Build message content
+    # Tạo nội dung thông điệp gửi cho agent
     if image_base64:
         content = [
             {"type": "text", "text": text or "Đây là hợp chất gì?"},
@@ -88,7 +131,7 @@ async def process_query(
         return QueryResponse(success=False, thread_id=thread_id, error="No response from agent")
 
     try:
-        # Convert quiz_data from Pydantic model to dict if present
+        # Chuyển quiz_data từ Pydantic model sang dict nếu có
         quiz_data = None
         if sr.quiz_data:
             logger.info(f"Converting quiz_data: {type(sr.quiz_data)}")
@@ -108,7 +151,7 @@ async def process_query(
             audio_base64=audio_b64,
             quiz_data=quiz_data,
         )
-        # Log response
+        # Ghi log thông tin phản hồi
         img_len = len(response.image_base64) if response.image_base64 else 0
         audio_len = len(response.audio_base64) if response.audio_base64 else 0
         quiz_type = quiz_data.get("type") if quiz_data else None
@@ -119,7 +162,7 @@ async def process_query(
         raise HTTPException(500, f"Response creation error: {str(e)}") from e
 
 
-# ============== FastAPI App ==============
+# ============== Ứng dụng FastAPI (khởi tạo API) ==============
 
 app = FastAPI(title="CHEMI - Chemistry Chatbot API", version="2.0.0")
 app.add_middleware(
@@ -130,7 +173,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Serve static files
+# Phục vụ tệp tĩnh (giao diện web demo)
 STATIC_DIR = Path(__file__).parent / "static"
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -138,13 +181,13 @@ if STATIC_DIR.exists():
 
 @app.get("/health")
 async def health():
-    """Endpoint kiểm tra trạng thái hoạt động."""
+    """Kiểm tra nhanh xem dịch vụ có đang chạy bình thường không."""
     return {"status": "ok", "service": "CHEMI Chemistry Chatbot"}
 
 
 @app.get("/")
 async def root():
-    """Phục vụ giao diện chat chính."""
+    """Trả về giao diện chat (nếu có) hoặc thông tin dịch vụ."""
     index_path = STATIC_DIR / "index.html"
     if index_path.exists():
         return FileResponse(index_path)
@@ -153,11 +196,11 @@ async def root():
 
 @app.post("/query", response_model=QueryResponse)
 async def query(request: QueryRequest):
-    """Endpoint truy vấn cho văn bản hoặc hình ảnh base64."""
+    """Nhận câu hỏi (chữ/ảnh) từ giao diện và trả lời lại."""
     return await process_query(request.text, request.image_base64, request.thread_id)
 
 
-# ============== Main ==============
+# ============== Chạy trực tiếp (main) ==============
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,4 +1,8 @@
-"""CHEMI Agent - Agent ReAct cho chatbot hóa học."""
+"""CHEMI Agent – thành phần điều phối và luận giải.
+
+- Tiếp nhận yêu cầu và trả lời bằng tiếng Việt
+- Tìm hình ảnh, tạo giọng đọc, sinh câu hỏi luyện tập khi cần
+"""
 
 import os
 import sqlite3
@@ -17,42 +21,48 @@ from src.tools import search_image, generate_speech, generate_quiz
 load_dotenv()
 
 
-# ============== Response Schema ==============
+# ============== Mô tả cấu trúc dữ liệu trả về ==============
 
 class QuizData(BaseModel):
-    """Unified quiz data structure for ALL quiz types."""
-    quiz_id: str = Field(description="Unique quiz identifier")
-    type: str = Field(description="Quiz type: mcq, matching, free_text, listening")
-    level: int = Field(description="Difficulty level 1-4")
-    topic: str = Field(description="Quiz topic")
+    """Cấu trúc dữ liệu thống nhất cho mọi dạng câu hỏi luyện tập.
 
-    # Question content
-    question_text: str = Field(description="The question text")
-    audio_script: Optional[str] = Field(default=None, description="For listening - TTS script")
+    Dùng để hiển thị câu hỏi, phương án trả lời, chấm điểm và giải thích.
+    """
+    quiz_id: str = Field(description="Mã câu hỏi (để phân biệt các câu hỏi)")
+    type: str = Field(description="Dạng bài: mcq, matching, free_text, listening")
+    level: int = Field(description="Mức độ khó 1-4 (1 dễ – 4 khó)")
+    topic: str = Field(description="Chủ đề của câu hỏi")
 
-    # Input configuration
-    input_type: str = Field(description="Input type: radio, select, text")
-    options: Optional[List[str]] = Field(default=None, description="Options for radio/select")
-    match_items: Optional[List[dict]] = Field(default=None, description="For matching type")
+    # Nội dung câu hỏi
+    question_text: str = Field(description="Nội dung câu hỏi")
+    audio_script: Optional[str] = Field(default=None, description="Dùng cho dạng listening – nội dung cần phát âm")
 
-    # Answer checking
-    check_method: str = Field(description="Check method: exact (frontend) or fuzzy (LLM)")
-    correct_answer: str = Field(description="Correct answer")
-    accept_variants: Optional[List[str]] = Field(default=None, description="Accepted variants for fuzzy")
+    # Cách người dùng trả lời
+    input_type: str = Field(description="Cách nhập: radio, select, text")
+    options: Optional[List[str]] = Field(default=None, description="Phương án lựa chọn (nếu có)")
+    match_items: Optional[List[dict]] = Field(default=None, description="Danh sách ghép cặp (cho dạng matching)")
 
-    # Feedback
-    explanation: str = Field(description="Explanation for the answer")
+    # Cách chấm điểm
+    check_method: str = Field(description="Cách kiểm tra: exact (so khớp chính xác) hoặc fuzzy (linh hoạt)")
+    correct_answer: str = Field(description="Đáp án đúng")
+    accept_variants: Optional[List[str]] = Field(default=None, description="Các cách viết gần đúng (nếu chấp nhận)")
+
+    # Phản hồi sau khi trả lời
+    explanation: str = Field(description="Giải thích ngắn gọn, dễ hiểu")
 
 
 class ChemistryResponse(BaseModel):
-    """Định dạng output có cấu trúc của agent."""
+    """Định dạng phản hồi chuẩn hóa từ agent.
+
+    Giao diện đọc các trường để hiển thị văn bản, hình ảnh, âm thanh và quiz.
+    """
     text_response: str = Field(description="Câu trả lời bằng tiếng Việt")
-    image_url: Optional[str] = Field(default=None, description="URL hình ảnh cấu trúc")
-    audio_url: Optional[str] = Field(default=None, description="Đường dẫn file audio")
-    quiz_data: Optional[QuizData] = Field(default=None, description="Quiz data for practice questions")
+    image_url: Optional[str] = Field(default=None, description="Đường dẫn hình ảnh (URL hoặc tệp)")
+    audio_url: Optional[str] = Field(default=None, description="Đường dẫn tệp âm thanh")
+    quiz_data: Optional[QuizData] = Field(default=None, description="Dữ liệu câu hỏi luyện tập (nếu có)")
 
 
-# ============== System Prompt ==============
+# ============== Lời nhắc hệ thống (định hướng trả lời) ==============
 
 SYSTEM_PROMPT = """Bạn là CHEMI - chatbot trợ lý Hóa học THPT thân thiện.
 
@@ -183,25 +193,25 @@ Phản ứng và khái niệm:
 """
 
 
-# ============== Config ==============
+# ============== Thiết lập thời gian chờ và độ sâu xử lý ==============
 
 TIMEOUT = 60
 RECURSION_LIMIT = 10
 
 
-# ============== Agent ==============
+# ============== Tạo và quản lý "trợ lý" (agent) ==============
 
 _agent = None
 _executor = ThreadPoolExecutor(max_workers=8)
 
-# Create sqlite connection for checkpointer
+# Tạo kết nối SQLite để lưu điểm kiểm soát (checkpoint)
 os.makedirs("data", exist_ok=True)
 _conn = sqlite3.connect("data/checkpoints.db", check_same_thread=False)
 _checkpointer = SqliteSaver(_conn)
 
 
 def get_agent():
-    """Lấy hoặc khởi tạo agent."""
+    """Khởi tạo hoặc tái sử dụng agent để tối ưu hiệu năng và tài nguyên."""
     global _agent
     if _agent:
         return _agent
@@ -225,14 +235,12 @@ def get_agent():
 
 
 async def invoke_agent(messages: list, thread_id: str) -> dict:
-    """Gọi agent xử lý tin nhắn.
+    """Gọi agent xử lý thông điệp và trả về phản hồi đã chuẩn hóa.
 
-    Args:
-        messages: Danh sách tin nhắn dạng dict với 'role' và 'content'
-        thread_id: ID cuộc hội thoại để lưu trữ bộ nhớ
+    - messages: danh sách lượt thoại có 'role' và 'content'
+    - thread_id: mã cuộc trò chuyện để lưu bối cảnh
 
-    Returns:
-        Dict kết quả từ agent với key 'structured_response'
+    Trả về đối tượng có trường 'structured_response'.
     """
     config = {"configurable": {"thread_id": thread_id}, "recursion_limit": RECURSION_LIMIT}
     loop = asyncio.get_event_loop()
