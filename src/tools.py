@@ -12,9 +12,9 @@ import uuid
 import logging
 from pathlib import Path
 
+import requests
 from dotenv import load_dotenv
 from langchain_core.tools import tool
-from ddgs import DDGS
 from groq import Groq
 
 load_dotenv()
@@ -50,18 +50,27 @@ def search_image(keyword: str) -> str:
 
     Trả về URL hình ảnh hoặc thông báo lỗi.
     """
-    for attempt in range(3):
-        try:
-            with DDGS() as ddgs:
-                if results := list(ddgs.images(query=keyword, max_results=1)):
-                    url = results[0]["image"]
-                    logger.info(f"Image: {keyword} → {url}")
-                    return url
-        except Exception as e:
-            if attempt < 2:
-                time.sleep(2**attempt)
-            else:
-                return f"Không tìm thấy hình ảnh cho '{keyword}'"
+    api_key = os.getenv("SERPAPI_KEY")
+    if not api_key:
+        return f"Không tìm thấy hình ảnh cho '{keyword}' (missing API key)"
+
+    try:
+        response = requests.get(
+            "https://serpapi.com/search.json",
+            params={"q": keyword, "tbm": "isch", "api_key": api_key, "num": 1},
+            timeout=10,
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        if images := data.get("images_results"):
+            url = images[0].get("original")
+            logger.info(f"Image: {keyword} → {url}")
+            return url
+
+    except Exception as e:
+        logger.error(f"Image search error: {e}")
+
     return f"Không tìm thấy hình ảnh cho '{keyword}'"
 
 
