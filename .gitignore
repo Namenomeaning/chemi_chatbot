@@ -112,3 +112,5 @@ deploy/DEPLOY.md
 # Local development configs
 docker-compose.local.yml
 nginx.local.conf
+# Interview-prep learning lab (not part of the product)
+learn/
