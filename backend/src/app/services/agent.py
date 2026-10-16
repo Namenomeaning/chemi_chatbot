@@ -1,17 +1,4 @@
 import asyncio
-import ssl
-
-# Import at startup so the Worker snapshot holds it (a lazy import cost about 1 s of CPU on the first request).
-# langchain_openai builds an SSL context at import, which fails in the startup phase. The context is only
-# used with a proxy, so stub it for the import.
-_create_default_context = ssl.create_default_context
-ssl.create_default_context = lambda *args, **kwargs: None
-try:
-    from langchain_openai import ChatOpenAI
-
-    ChatOpenAI(api_key="warmup", model="warmup")  # the first instance costs about 0.4 s of CPU
-finally:
-    ssl.create_default_context = _create_default_context
 
 from langgraph.prebuilt import create_react_agent
 
@@ -24,6 +11,9 @@ RECURSION_LIMIT = 10
 
 
 def build_agent(settings: Settings, checkpointer, tools):
+    # Import here: langchain_openai builds an SSL context on import, which fails while the Worker starts.
+    from langchain_openai import ChatOpenAI
+
     llm = ChatOpenAI(
         api_key=settings.openrouter_api_key,
         base_url=settings.openrouter_base_url,
