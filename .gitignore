@@ -114,3 +114,11 @@ docker-compose.local.yml
 nginx.local.conf
 # Interview-prep learning lab (not part of the product)
 learn/
+
+# Cloudflare Worker (backend/)
+node_modules/
+python_modules/
+.venv-workers/
+.wrangler/
+.dev.vars
+pylock.toml

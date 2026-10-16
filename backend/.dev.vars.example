@@ -1,0 +1,6 @@
+OPENAI_API_KEY=
+GROQ_API_KEY=
+SERPAPI_KEY=
+# Optional override of the vars in wrangler.jsonc:
+# OPENAI_BASE_URL=
+# OPENAI_MODEL=
