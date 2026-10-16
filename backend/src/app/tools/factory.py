@@ -13,12 +13,12 @@ from app.services.cloudflare import to_js_bytes
 
 logger = logging.getLogger(__name__)
 
-GROQ_URL = "https://api.groq.com/openai/v1"
 AUDIO_ID = re.compile(r"^audio/[0-9a-f]{32}$")
 
 
 def make_tools(settings: Settings, bucket):
-    groq_headers = {"Authorization": f"Bearer {settings.groq_api_key.get_secret_value()}"}
+    base_url = settings.openrouter_base_url
+    headers = {"Authorization": f"Bearer {settings.openrouter_api_key.get_secret_value()}"}
 
     @tool
     async def search_image(keyword: str) -> str:
@@ -44,11 +44,10 @@ def make_tools(settings: Settings, bucket):
         return f"Không tìm thấy hình ảnh cho '{keyword}'"
 
     @tool
-    async def generate_speech(text: str, voice: str = "autumn") -> str:
+    async def generate_speech(text: str) -> str:
         """Chuyển văn bản thành giọng đọc tiếng Anh.
 
         - text: nội dung cần đọc (ví dụ: tên IUPAC, đoạn mô tả)
-        - voice: giọng đọc (ví dụ: autumn, breeze, cove, juniper)
         - Kết quả: mã âm thanh dạng audio/<id>. Điền mã này vào audio_url.
         """
         if bucket is None:
@@ -56,9 +55,9 @@ def make_tools(settings: Settings, bucket):
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 response = await client.post(
-                    f"{GROQ_URL}/audio/speech",
-                    headers=groq_headers,
-                    json={"model": "canopylabs/orpheus-v1-english", "voice": voice, "input": text, "response_format": "wav"},
+                    f"{base_url}/audio/speech",
+                    headers=headers,
+                    json={"model": settings.tts_model, "voice": settings.tts_voice, "input": text, "response_format": "mp3"},
                 )
             response.raise_for_status()
             key = f"audio/{uuid.uuid4().hex}"
@@ -91,16 +90,16 @@ def make_tools(settings: Settings, bucket):
         try:
             async with httpx.AsyncClient(timeout=40) as client:
                 response = await client.post(
-                    f"{GROQ_URL}/chat/completions",
-                    headers=groq_headers,
+                    f"{base_url}/chat/completions",
+                    headers=headers,
                     json={
-                        "model": "openai/gpt-oss-120b",
+                        "model": settings.quiz_model,
                         "messages": [
                             {"role": "system", "content": QUIZ_SYSTEM_PROMPT},
                             {"role": "user", "content": prompt},
                         ],
                         "temperature": 0.7,
-                        "max_completion_tokens": 2048,
+                        "max_tokens": 2048,
                         "response_format": {"type": "json_object"},
                     },
                 )

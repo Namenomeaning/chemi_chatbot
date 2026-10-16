@@ -2016,12 +2016,12 @@
                     }
                     // Only show audio if NOT listening quiz (listening quiz audio will be inside quiz)
                     if (audio && (!quizData || quizData.type !== 'listening')) {
-                        const audioSrc = audio.startsWith('http') ? audio : `data:audio/wav;base64,${audio}`;
+                        const audioSrc = audio.startsWith('http') ? audio : `data:audio/mpeg;base64,${audio}`;
                         mediaHtml += `
                             <div class="audio-container">
                                 <p class="audio-label">&#128266; Phát âm</p>
                                 <audio controls>
-                                    <source src="${audioSrc}" type="audio/wav">
+                                    <source src="${audioSrc}" type="audio/mpeg">
                                 </audio>
                             </div>
                         `;
@@ -2121,8 +2121,8 @@
                         }
 
                         if (msg.audio) {
-                            const audioSrc = msg.audio.startsWith('http') ? msg.audio : `data:audio/wav;base64,${msg.audio}`;
-                            mediaHtml += `<div class="audio-container"><p class="audio-label">&#128266; Phát âm</p><audio controls><source src="${audioSrc}" type="audio/wav"></audio></div>`;
+                            const audioSrc = msg.audio.startsWith('http') ? msg.audio : `data:audio/mpeg;base64,${msg.audio}`;
+                            mediaHtml += `<div class="audio-container"><p class="audio-label">&#128266; Phát âm</p><audio controls><source src="${audioSrc}" type="audio/mpeg"></audio></div>`;
                         } else if (msg.hasAudio) {
                             mediaHtml += `<div class="media-placeholder">&#128264; Audio đã được dọn dẹp</div>`;
                         }
@@ -2224,12 +2224,12 @@
 
             // Audio player for listening type
             if (quiz.type === 'listening' && audio) {
-                const audioSrc = audio.startsWith('http') ? audio : `data:audio/wav;base64,${audio}`;
+                const audioSrc = audio.startsWith('http') ? audio : `data:audio/mpeg;base64,${audio}`;
                 html += `
                     <div class="audio-container" style="margin-bottom: 16px;">
                         <p class="audio-label">&#128266; Nghe mô tả và chọn đáp án</p>
                         <audio controls style="width: 100%;">
-                            <source src="${audioSrc}" type="audio/wav">
+                            <source src="${audioSrc}" type="audio/mpeg">
                         </audio>
                     </div>
                 `;

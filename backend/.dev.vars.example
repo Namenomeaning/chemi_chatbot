@@ -1,6 +1,7 @@
-OPENAI_API_KEY=
-GROQ_API_KEY=
+OPENROUTER_API_KEY=
 SERPAPI_KEY=
-# Optional override of the vars in wrangler.jsonc:
-# OPENAI_BASE_URL=
-# OPENAI_MODEL=
+# Optional overrides (defaults are in src/app/core/config.py):
+# LLM_MODEL=openai/gpt-6-luna
+# QUIZ_MODEL=openai/gpt-oss-120b
+# TTS_MODEL=hexgrad/kokoro-82m
+# TTS_VOICE=af_heart

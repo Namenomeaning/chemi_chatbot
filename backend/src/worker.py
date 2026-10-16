@@ -1,5 +1,10 @@
+import warnings
+
 import asgi
 from workers import WorkerEntrypoint
+
+# langgraph-checkpoint 2.0 triggers this LangChain warning on import. Wrangler prints it as an error.
+warnings.filterwarnings("ignore", message=".*allowed_objects.*")
 
 from app.main import app
 

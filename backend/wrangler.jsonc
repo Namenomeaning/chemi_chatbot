@@ -13,9 +13,7 @@
     { "name": "LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
   ],
   "vars": {
-    "APP_ENV": "local",
-    "OPENAI_BASE_URL": "https://gpt3.shupremium.com/v1",
-    "OPENAI_MODEL": "gpt-4.1-mini"
+    "APP_ENV": "local"
   },
   "observability": { "enabled": true },
   // The zone quangiz.me must be in the same Cloudflare account.
