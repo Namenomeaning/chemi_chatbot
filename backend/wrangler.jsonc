@@ -17,7 +17,7 @@
     "OPENAI_BASE_URL": "https://gpt3.shupremium.com/v1",
     "OPENAI_MODEL": "gpt-4.1-mini"
   },
-  "observability": { "enabled": true }
-  // Custom domain, after the zone quangiz.me is in your account:
-  // "routes": [{ "pattern": "chemi.quangiz.me", "custom_domain": true }]
+  "observability": { "enabled": true },
+  // The zone quangiz.me must be in the same Cloudflare account.
+  "routes": [{ "pattern": "chemi.quangiz.me", "custom_domain": true }]
 }

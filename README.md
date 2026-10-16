@@ -61,9 +61,10 @@ npx wrangler secret put SERPAPI_KEY          # tùy chọn
 uv run pywrangler deploy
 ```
 
-Domain `chemi.quangiz.me`: bỏ comment dòng `routes` trong `wrangler.jsonc` (zone `quangiz.me` phải nằm trong cùng tài khoản Cloudflare).
+Domain `chemi.quangiz.me` đã khai báo trong `routes` của `wrangler.jsonc` (zone `quangiz.me` phải nằm trong cùng tài khoản Cloudflare). R2 đang tắt: bật R2 trong dashboard, tạo bucket `chemi-artifacts`, rồi bỏ comment `r2_buckets` để dùng giọng đọc.
 
 ## Trạng thái kiểm thử
 
 - Đã chạy local với server OpenAI giả: `/health`, `/ready`, `POST /query` (agent + D1), trang chat, bộ nhớ trong D1.
-- Chưa chạy: gọi LLM thật, TTS và quiz (Groq), tìm ảnh (SerpAPI), deploy lên Cloudflare, domain.
+- Đã deploy: `https://chemi.quangiz.me` trả `/health`, `/ready` và trang chat.
+- Chưa chạy: gọi LLM thật, TTS và quiz (Groq), tìm ảnh (SerpAPI). `POST /query` trả 503 cho tới khi đặt secret `OPENAI_API_KEY` và `GROQ_API_KEY`.
