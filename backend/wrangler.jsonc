@@ -4,6 +4,8 @@
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["python_workers"],
   "assets": { "directory": "./static" },
+  // Workers Paid only. The first request of an isolate imports LangChain and OpenAI, about 2 s of CPU.
+  "limits": { "cpu_ms": 30000 },
   "d1_databases": [
     { "binding": "DB", "database_name": "chemi", "database_id": "463019bc-8dba-4c51-95bc-d9abedaf7937" }
   ],

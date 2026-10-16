@@ -4,7 +4,6 @@ from langgraph.prebuilt import create_react_agent
 
 from app.core.config import Settings
 from app.prompts import SYSTEM_PROMPT
-from app.schemas.query import ChemistryResponse
 
 TIMEOUT = 60
 RECURSION_LIMIT = 10
@@ -24,12 +23,25 @@ def build_agent(settings: Settings, checkpointer, tools):
         # tokens, 2 s per call, measured). Turn that off.
         extra_body={"reasoning": {"enabled": False}},
     )
-    return create_react_agent(
-        llm, tools, prompt=SYSTEM_PROMPT, response_format=ChemistryResponse, checkpointer=checkpointer
-    )
+    return create_react_agent(llm, tools, prompt=SYSTEM_PROMPT, checkpointer=checkpointer)
 
 
 async def run_agent(agent, messages: list, thread_id: str, *, max_seconds: int = TIMEOUT) -> dict:
     """Run the agent. A timeout cancels the run, so no background work keeps going."""
     config = {"configurable": {"thread_id": thread_id}, "recursion_limit": RECURSION_LIMIT}
     return await asyncio.wait_for(agent.ainvoke({"messages": messages}, config), timeout=max_seconds)
+
+
+def read_turn(messages: list) -> tuple[str, dict]:
+    """Return the final answer text and the artifacts that tools produced in the latest turn.
+
+    Artifacts are keyed by kind. If a tool ran twice, the last result wins.
+    """
+    start = max((i for i, m in enumerate(messages) if m.type == "human"), default=-1) + 1
+    turn = messages[start:]
+    artifacts = {a["kind"]: a for m in turn if m.type == "tool" and (a := m.artifact)}
+    text = ""
+    if turn and turn[-1].type == "ai":
+        content = turn[-1].content
+        text = content if isinstance(content, str) else "".join(b.get("text", "") for b in content if isinstance(b, dict))
+    return text.strip(), artifacts

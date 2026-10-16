@@ -1,14 +1,15 @@
 import asyncio
 import base64
 import logging
-
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import ValidationError
 
 from app.api.deps import check_rate_limit, get_env, get_settings
 from app.schemas.query import QueryRequest, QueryResponse
-from app.services.agent import build_agent, run_agent
+from app.schemas.quiz import QuizData
+from app.services.agent import build_agent, read_turn, run_agent
 from app.services.d1_saver import D1Saver
 from app.tools.factory import AUDIO_ID, make_tools
 
@@ -27,6 +28,17 @@ async def load_audio(env, audio_id: str | None) -> str | None:
     if obj is None:
         return None
     return base64.b64encode(bytes(await obj.arrayBuffer())).decode()
+
+
+def parse_quiz(data: dict | None) -> dict | None:
+    """Check the quiz against QuizData. A malformed quiz is dropped, not sent to the browser."""
+    if not data:
+        return None
+    try:
+        return QuizData.model_validate(data).model_dump()
+    except ValidationError as e:
+        logger.error("Quiz does not match QuizData: %s", e)
+        return None
 
 
 @router.post("/query", response_model=QueryResponse, dependencies=[Depends(check_rate_limit)])
@@ -54,14 +66,14 @@ async def query(request: QueryRequest, env=Depends(get_env), settings=Depends(ge
             return QueryResponse(success=False, thread_id=thread_id, error="Không tìm được thông tin")
         raise HTTPException(500, "Agent error") from e
 
-    sr = result.get("structured_response")
-    if sr is None:
+    text, artifacts = read_turn(result["messages"])
+    if not text:
         return QueryResponse(success=False, thread_id=thread_id, error="No response from agent")
     return QueryResponse(
         success=True,
         thread_id=thread_id,
-        text_response=sr.text_response,
-        image_base64=sr.image_url,
-        audio_base64=await load_audio(env, sr.audio_url),
-        quiz_data=sr.quiz_data.model_dump() if sr.quiz_data else None,
+        text_response=text,
+        image_base64=artifacts.get("image", {}).get("url"),
+        audio_base64=await load_audio(env, artifacts.get("audio", {}).get("key")),
+        quiz_data=parse_quiz(artifacts.get("quiz", {}).get("data")),
     )

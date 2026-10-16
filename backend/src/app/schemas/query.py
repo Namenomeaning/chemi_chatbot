@@ -2,8 +2,6 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from app.schemas.quiz import QuizData
-
 
 class QueryRequest(BaseModel):
     text: Optional[str] = Field(default=None, description="Nội dung văn bản người dùng nhập")
@@ -20,11 +18,3 @@ class QueryResponse(BaseModel):
     quiz_data: Optional[dict] = None
     error: Optional[str] = None
 
-
-class ChemistryResponse(BaseModel):
-    """Định dạng phản hồi chuẩn hóa từ agent."""
-
-    text_response: str = Field(description="Câu trả lời bằng tiếng Việt")
-    image_url: Optional[str] = Field(default=None, description="URL hình ảnh")
-    audio_url: Optional[str] = Field(default=None, description="Mã âm thanh do generate_speech trả về (dạng audio/<id>)")
-    quiz_data: Optional[QuizData] = Field(default=None, description="Dữ liệu câu hỏi luyện tập (nếu có)")

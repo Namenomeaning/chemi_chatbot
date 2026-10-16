@@ -1,4 +1,8 @@
-"""CHEMI tools. Each tool is created with the keys it needs, so no tool reads os.environ."""
+"""CHEMI tools. Each tool is created with the keys it needs, so no tool reads os.environ.
+
+Each tool returns (content, artifact). The model reads only the content. The server reads the artifact:
+{"kind": "image", "url": ...}, {"kind": "audio", "key": ...} or {"kind": "quiz", "data": {...}}.
+"""
 import json
 import logging
 import re
@@ -20,16 +24,16 @@ def make_tools(settings: Settings, bucket):
     base_url = settings.openrouter_base_url
     headers = {"Authorization": f"Bearer {settings.openrouter_api_key.get_secret_value()}"}
 
-    @tool
-    async def search_image(keyword: str) -> str:
+    @tool(response_format="content_and_artifact")
+    async def search_image(keyword: str) -> tuple[str, dict | None]:
         """Tìm hình ảnh phù hợp với từ khóa.
 
         Ví dụ từ khóa: "ethanol structure" (cấu trúc), "ethanol bottle" (hình thực tế),
         "ethanol 3d model" (mô hình 3D), "chemistry lab" (phòng thí nghiệm).
-        Trả về URL hình ảnh hoặc thông báo lỗi.
+        Hình ảnh được hệ thống tự hiển thị cho người dùng.
         """
         if settings.serpapi_key is None:
-            return f"Không tìm thấy hình ảnh cho '{keyword}' (missing API key)"
+            return f"Không tìm thấy hình ảnh cho '{keyword}' (missing API key)", None
         try:
             async with httpx.AsyncClient(timeout=10) as client:
                 response = await client.get(
@@ -38,20 +42,20 @@ def make_tools(settings: Settings, bucket):
                 )
             response.raise_for_status()
             if images := response.json().get("images_results"):
-                return images[0].get("original")
+                return "Đã tìm thấy 1 hình ảnh.", {"kind": "image", "url": images[0].get("original")}
         except Exception as e:
             logger.error("Image search error: %s", e)
-        return f"Không tìm thấy hình ảnh cho '{keyword}'"
+        return f"Không tìm thấy hình ảnh cho '{keyword}'", None
 
-    @tool
-    async def generate_speech(text: str) -> str:
+    @tool(response_format="content_and_artifact")
+    async def generate_speech(text: str) -> tuple[str, dict | None]:
         """Chuyển văn bản thành giọng đọc tiếng Anh.
 
         - text: nội dung cần đọc (ví dụ: tên IUPAC, đoạn mô tả)
-        - Kết quả: mã âm thanh dạng audio/<id>. Điền mã này vào audio_url.
+        - Âm thanh được hệ thống tự phát cho người dùng.
         """
         if bucket is None:
-            return "Lỗi: Không thể tạo âm thanh - R2 chưa được bật"
+            return "Lỗi: Không thể tạo âm thanh - R2 chưa được bật", None
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 response = await client.post(
@@ -62,18 +66,19 @@ def make_tools(settings: Settings, bucket):
             response.raise_for_status()
             key = f"audio/{uuid.uuid4().hex}"
             await bucket.put(key, to_js_bytes(response.content))
-            return key
+            return "Đã tạo âm thanh.", {"kind": "audio", "key": key}
         except Exception as e:
-            return f"Lỗi: Không thể tạo âm thanh - {e}"
+            return f"Lỗi: Không thể tạo âm thanh - {e}", None
 
-    @tool
-    async def generate_quiz(question_type: str, topic: str = "random", level: int = 1) -> str:
+    @tool(response_format="content_and_artifact")
+    async def generate_quiz(question_type: str, topic: str = "random", level: int = 1) -> tuple[str, dict | None]:
         """Tạo câu hỏi luyện tập theo chủ đề và mức độ.
 
         - question_type: dạng câu hỏi (mcq, matching, free_text, listening)
         - topic: chủ đề (vd: "ethanol", "alkane" hoặc "random")
         - level: độ khó 1–4 (1 dễ – 4 khó)
-        - Trả về: chuỗi JSON mô tả nội dung, cấu hình nhập và cách chấm
+        - Trả về: chuỗi JSON mô tả nội dung, cấu hình nhập và cách chấm.
+          Câu hỏi được hệ thống tự hiển thị cho người dùng.
         """
         level_desc = {
             1: "Nhận biết - câu hỏi đơn giản, trực tiếp",
@@ -117,12 +122,12 @@ def make_tools(settings: Settings, bucket):
             quiz["topic"] = topic
             quiz.setdefault("input_type", "radio" if question_type in {"mcq", "listening"} else "text")
             quiz.setdefault("check_method", "fuzzy" if question_type == "free_text" else "exact")
-            return json.dumps(quiz, ensure_ascii=False)
+            return json.dumps(quiz, ensure_ascii=False), {"kind": "quiz", "data": quiz}
         except json.JSONDecodeError as e:
             logger.error("Quiz JSON parse error: %s", e)
-            return json.dumps({"error": f"Lỗi parse JSON: {e}"})
+            return json.dumps({"error": f"Lỗi parse JSON: {e}"}), None
         except Exception as e:
             logger.error("Quiz generation error: %s", e)
-            return json.dumps({"error": f"Lỗi tạo quiz: {e}"})
+            return json.dumps({"error": f"Lỗi tạo quiz: {e}"}), None
 
     return [search_image, generate_speech, generate_quiz]
