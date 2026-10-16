@@ -5,10 +5,10 @@
   "compatibility_flags": ["python_workers"],
   "assets": { "directory": "./static" },
   "d1_databases": [
-    // database_id: replace with the id printed by `npx wrangler d1 create chemi`
-    { "binding": "DB", "database_name": "chemi", "database_id": "00000000-0000-0000-0000-000000000000" }
+    { "binding": "DB", "database_name": "chemi", "database_id": "463019bc-8dba-4c51-95bc-d9abedaf7937" }
   ],
-  "r2_buckets": [{ "binding": "ARTIFACTS", "bucket_name": "chemi-artifacts" }],
+  // Speech needs R2. Enable R2 in the dashboard, run `npx wrangler r2 bucket create chemi-artifacts`, then uncomment:
+  // "r2_buckets": [{ "binding": "ARTIFACTS", "bucket_name": "chemi-artifacts" }],
   "ratelimits": [
     { "name": "LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
   ],

@@ -20,7 +20,10 @@ async def load_audio(env, audio_id: str | None) -> str | None:
     """Read audio from R2. The key must match the pattern the tool returns, never a model-chosen path."""
     if not audio_id or not AUDIO_ID.fullmatch(audio_id):
         return None
-    obj = await env.ARTIFACTS.get(audio_id)
+    bucket = getattr(env, "ARTIFACTS", None)
+    if bucket is None:
+        return None
+    obj = await bucket.get(audio_id)
     if obj is None:
         return None
     return base64.b64encode(bytes(await obj.arrayBuffer())).decode()
@@ -40,7 +43,7 @@ async def query(request: QueryRequest, env=Depends(get_env), settings=Depends(ge
     else:
         content = request.text
 
-    agent = build_agent(settings, D1Saver(env.DB), make_tools(settings, env.ARTIFACTS))
+    agent = build_agent(settings, D1Saver(env.DB), make_tools(settings, getattr(env, "ARTIFACTS", None)))
     try:
         result = await run_agent(agent, [{"role": "user", "content": content}], thread_id)
     except asyncio.TimeoutError:

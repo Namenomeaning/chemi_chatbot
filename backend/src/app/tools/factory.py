@@ -51,6 +51,8 @@ def make_tools(settings: Settings, bucket):
         - voice: giọng đọc (ví dụ: autumn, breeze, cove, juniper)
         - Kết quả: mã âm thanh dạng audio/<id>. Điền mã này vào audio_url.
         """
+        if bucket is None:
+            return "Lỗi: Không thể tạo âm thanh - R2 chưa được bật"
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 response = await client.post(

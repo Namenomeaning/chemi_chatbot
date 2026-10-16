@@ -1,4 +1,5 @@
 from fastapi import HTTPException, Request
+from pydantic import ValidationError
 
 from app.core.config import Settings, load_settings
 from app.services.cloudflare import to_js_obj
@@ -14,7 +15,12 @@ def get_settings(request: Request) -> Settings:
     """Build Settings on the first request. The env does not exist at import time."""
     global _settings
     if _settings is None:
-        _settings = load_settings(get_env(request))
+        try:
+            _settings = load_settings(get_env(request))
+        except ValidationError as e:
+            # Name the fields only. Never echo values.
+            fields = ", ".join(str(err["loc"][0]).upper() for err in e.errors())
+            raise HTTPException(503, f"Server is not configured. Missing or invalid: {fields}") from e
     return _settings
 
 
