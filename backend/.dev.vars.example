@@ -1,0 +1,14 @@
+OPENROUTER_API_KEY=
+SERPAPI_KEY=
+# Optional overrides (defaults are in src/app/core/config.py):
+# LLM_MODEL=openai/gpt-6-luna
+# QUIZ_MODEL=openai/gpt-oss-120b
+# TTS_MODEL=hexgrad/kokoro-82m
+# TTS_VOICE=af_heart
+
+# Comma-separated access keys. Required for production.
+API_KEYS=
+APP_ENV=local
+# Set true after loading the knowledge corpus and binding Workers AI + Vectorize.
+RAG_ENABLED=false
+# CORS_ORIGINS=https://chemi.quangiz.me,http://localhost:8787

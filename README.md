@@ -1,169 +1,89 @@
-# CHEMI – Chatbot Hóa học (API)
+# CHEMI — Chemistry tutor
 
-CHEMI là backend FastAPI cho chatbot Hóa học THPT, kèm giao diện chat tĩnh. Chatbot trả lời bằng tiếng Việt, dùng danh pháp IUPAC tiếng Anh cho tên chất và nhóm chức, tìm hình ảnh, tạo giọng đọc tiếng Anh và sinh câu hỏi luyện tập.
+CHEMI is a Vietnamese high-school chemistry assistant. It explains compounds, shows chemical structures, reads English names, and creates practice quizzes. Chemical names use English nomenclature.
 
-## Tính năng chính
+The application runs as a Cloudflare Python Worker with FastAPI and LangGraph. The Worker also serves the chat interface at https://chemi.quangiz.me.
 
-- Trả lời tiếng Việt, tên chất và nhóm chức theo IUPAC tiếng Anh (Alcohol, Aldehyde, Methane…)
-- Nhận câu hỏi dạng văn bản hoặc ảnh
-- Tìm hình ảnh (cấu trúc/ảnh thực tế) qua SerpAPI (Google Images)
-- TTS tiếng Anh (Groq `canopylabs/orpheus-v1-english`) cho tên chất và đoạn mô tả
-- Quiz `mcq`, `matching`, `free_text`, `listening`, mức độ 1–4, soạn bởi Groq `openai/gpt-oss-120b`
-- Lưu ngữ cảnh hội thoại theo `thread_id` bằng SQLite checkpoint (`data/checkpoints.db`)
+## Request flow
 
-## Yêu cầu
-
-- Python 3.13+ và [uv](https://docs.astral.sh/uv/)
-- Biến môi trường:
-
-| Biến | Bắt buộc | Mặc định | Dùng cho |
-|---|---|---|---|
-| `OPENAI_API_KEY` | có | – | LLM của agent |
-| `OPENAI_BASE_URL` | không | `https://gpt3.shupremium.com/v1` | Endpoint tương thích OpenAI |
-| `OPENAI_MODEL` | không | `gpt-4.1-mini` | Model của agent |
-| `GROQ_API_KEY` | có | – | TTS và soạn quiz |
-| `SERPAPI_KEY` | không | – | Tìm ảnh; thiếu thì tool trả về "không tìm thấy hình ảnh" |
-
-Tạo file `.env` ở thư mục gốc:
-
-```env
-OPENAI_API_KEY=...
-OPENAI_BASE_URL=https://gpt3.shupremium.com/v1
-OPENAI_MODEL=gpt-4.1-mini
-GROQ_API_KEY=...
-SERPAPI_KEY=...
+```text
+Browser → Worker/ASGI → FastAPI dependencies → query service
+                                            ├─ D1 conversation checkpoints
+                                            ├─ D1 FTS5 + Vectorize retrieval
+                                            └─ LangGraph → OpenRouter → tools
+Response ← validated text, citations, quiz, image, and audio artifacts
 ```
 
-## Chạy local
+| Location | Responsibility |
+|---|---|
+| `backend/src/worker.py` | Adapt Cloudflare requests to ASGI |
+| `backend/src/app/main.py` | Register routes, middleware, and error handlers |
+| `api/` | HTTP contracts, authentication, rate limits, and error responses |
+| `schemas/` | Validate requests, responses, and quiz data |
+| `services/` | Query workflow, model adapter, memory, retrieval, and artifact processing |
+| `tools/factory.py` | Model-callable image search, speech, and quiz generation |
+| `backend/knowledge/` | Small source corpus for retrieval |
+| `backend/tests/` | Offline tests using fake bindings and HTTP providers |
+
+## Local setup
+
+Requirements: Python 3.13, Node.js 22 or newer, and uv 0.13.1. The lockfiles pin dependency versions.
 
 ```bash
-uv sync
-uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+cd backend
+npm ci
+uv sync --frozen
+cp .dev.vars.example .dev.vars
 ```
 
-Mở http://localhost:8000 để dùng giao diện chat.
-
-## Chạy bằng Docker Compose
+Edit `.dev.vars`. Set `OPENROUTER_API_KEY`. Set `API_KEYS` to a random application access key. Keep `APP_ENV=local` and `RAG_ENABLED=false` for a basic local run.
 
 ```bash
-# Yêu cầu: Docker Compose, đã tạo file .env
-docker compose up -d --build
+npx wrangler d1 execute chemi --local --file schema.sql
+uv run pywrangler dev
 ```
 
-Compose chạy 3 service:
+Open http://localhost:8787. Use **Mã truy cập** to enter the application access key. The browser keeps this key in tab session storage. It never receives the provider key.
 
-- `app`: uvicorn 4 worker trên cổng 8000 (chỉ mở trong mạng Docker), có healthcheck `/health`.
-- `nginx`: reverse proxy HTTPS cho `chemi.vn` (cấu hình trong `nginx.conf`; đổi domain nếu cần). Giới hạn body 10 MB, timeout đọc 120 s.
-- `certbot`: gia hạn chứng chỉ Let's Encrypt mỗi 12 giờ.
-
-Thư mục `./data` trên host được mount vào container. Nó chứa `checkpoints.db` và file âm thanh trong `tts_output/`.
-
-## API
-
-| Endpoint | Mô tả |
+| Setting | Purpose |
 |---|---|
-| `GET /health` | Kiểm tra trạng thái dịch vụ |
-| `GET /` | Giao diện chat (`src/static/index.html`) |
-| `POST /query` | Gửi câu hỏi văn bản và/hoặc ảnh |
+| `OPENROUTER_API_KEY` | Required provider credential |
+| `API_KEYS` | Comma-separated application access keys. Required in production |
+| `APP_ENV` | `local`, `test`, or `production` |
+| `LLM_MODEL` | Agent model, default `openai/gpt-6-luna` |
+| `QUIZ_MODEL` | Quiz model, default `openai/gpt-oss-120b` |
+| `TTS_MODEL`, `TTS_VOICE` | Speech model and voice |
+| `SERPAPI_KEY` | Optional general image search. Without it, PubChem supplies compound structure diagrams |
+| `RAG_ENABLED` | Ground explanations with the knowledge corpus |
+| `CORS_ORIGINS` | Optional comma-separated browser origin allowlist |
+| `RETRIEVAL_MIN_SCORE` | Minimum semantic similarity, default `0.65` |
 
-Request:
+Worker settings come from request bindings. They do not use `os.environ`. Local `.dev.vars` and production Worker secrets have separate lifecycles.
 
-```json
-{
-  "text": "Ancol etylic là gì?",
-  "image_base64": null,
-  "thread_id": "thread-abc123"
-}
+## Verification
+
+From the repository root:
+
+```bash
+make check
 ```
 
-- `text` hoặc `image_base64` phải có ít nhất một; thiếu cả hai trả về HTTP 400.
-- `image_base64` là chuỗi base64 thuần của ảnh PNG/JPEG, không có tiền tố `data:`. Khi có ảnh mà không có `text`, câu hỏi mặc định là "Đây là hợp chất gì?".
-- `thread_id` bỏ trống thì server tự tạo (`thread-<hex>`). Dùng lại cùng `thread_id` để giữ ngữ cảnh.
+This runs lint, formatting checks, offline tests, and a small lexical retrieval evaluation. Tests need no provider credentials. The eight-case evaluation is a smoke set, not a production accuracy estimate.
 
-Response (rút gọn):
+The HTTP model adapter preserves image inputs, tool calls, tool results, and token usage. It avoids the OpenAI SDK and tiktoken in the Worker bundle. It supports asynchronous calls. Streaming is not implemented.
 
-```json
-{
-  "success": true,
-  "thread_id": "thread-abc123",
-  "text_response": "Ethanol là ...",
-  "image_base64": "https://.../ethanol-structure.png",
-  "audio_base64": "UklGRiQAAABXQVZF...",
-  "quiz_data": null,
-  "error": null
-}
-```
+## Retrieval and memory
 
-- `image_base64` là URL ảnh do SerpAPI trả về.
-- `audio_base64` là base64 thuần của file WAV, không có tiền tố `data:`.
-- Quá 60 s hoặc agent vượt giới hạn đệ quy (10 bước) trả về `success: false` kèm `error`. Lỗi khác trả về HTTP 500.
+The ingestion script splits Markdown into overlapping chunks with stable IDs. It stores text in D1 FTS5 and creates 768-dimensional Workers AI embeddings in Vectorize. Query retrieval combines keyword and semantic ranks with reciprocal rank fusion.
 
-### `quiz_data`
+Explanations cite retrieved chunk IDs. The server removes unknown IDs and abstains without evidence or a valid citation. Citation filtering does not prove factual entailment. Exercises and image recognition use separate flows. Quiz schema validation does not prove answer correctness.
 
-Khi người dùng yêu cầu bài tập, `text_response` chỉ là câu dẫn ngắn; nội dung câu hỏi nằm trong `quiz_data`:
+D1Saver stores LangGraph checkpoints and pending writes. The client reuses a `thread_id`. The internal key includes the access-key identity. Callers sharing an access key also share its identity; this is not individual user authentication. Historical public threads from the earlier unscoped prototype are not imported into authenticated identities.
 
-```json
-{
-  "quiz_id": "a1b2c3d4",
-  "type": "mcq",
-  "level": 1,
-  "topic": "alkane",
-  "question_text": "Tên IUPAC của CH3-CH2-CH3 là gì?",
-  "input_type": "radio",
-  "options": ["A) Methane", "B) Ethane", "C) Propane", "D) Butane"],
-  "check_method": "exact",
-  "correct_answer": "C",
-  "explanation": "Propane có 3 nguyên tử carbon..."
-}
-```
+## Deployment
 
-| Trường | Giá trị |
-|---|---|
-| `type` | `mcq`, `matching`, `free_text`, `listening` |
-| `level` | 1 nhận biết, 2 thông hiểu, 3 vận dụng, 4 vận dụng cao |
-| `input_type` | `radio` (mcq, listening), `select` (matching), `text` (free_text) |
-| `check_method` | `exact`: giao diện tự chấm; `fuzzy`: gửi câu trả lời lên `/query` để agent đánh giá |
-| `options` / `match_items` | Phương án cho `radio` / các cặp ghép cho `select` |
-| `audio_script` | Chỉ có ở `listening`; agent gọi TTS với nội dung này và trả về qua `audio_base64` |
+See [backend/DEPLOYMENT.md](backend/DEPLOYMENT.md). The deployment config includes D1, Vectorize, Workers AI, a rate limiter, observability, and the `chemi.quangiz.me` custom domain. R2 must be activated and its binding enabled before live audio storage works.
 
-Với `matching`, `correct_answer` là chuỗi JSON dạng `{"CH4":"Methane",...}`.
+The GitHub workflow runs `lint` and `test` for pull requests. On `main`, it then applies the additive schema, uploads knowledge, deploys, and runs health/readiness smoke checks. The deploy job requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
 
-## Cấu trúc thư mục
-
-```
-.
-├─ src/
-│  ├─ main.py        # FastAPI: endpoint, đổi file/URL sang base64
-│  ├─ agent.py       # Agent LangGraph, system prompt, schema ChemistryResponse/QuizData
-│  ├─ tools.py       # Tool: search_image, generate_speech, generate_quiz
-│  └─ static/        # Giao diện chat (index.html)
-├─ deploy/
-│  ├─ setup-ec2.sh   # Cài Docker, Compose, Git trên Amazon Linux 2023
-│  └─ init-ssl.sh    # Cấp chứng chỉ Let's Encrypt: ./deploy/init-ssl.sh <domain> <email>
-├─ .github/workflows/deploy.yml
-├─ docker-compose.yml
-├─ Dockerfile
-├─ nginx.conf
-└─ pyproject.toml / uv.lock
-```
-
-## Triển khai
-
-Push lên `main` kích hoạt `.github/workflows/deploy.yml`:
-
-1. SSH vào EC2, lưu commit hiện tại.
-2. `git pull` rồi `docker compose up -d --build`.
-3. Kiểm tra `http://localhost/health` tối đa 3 lần; thất bại thì `git reset --hard` về commit cũ và build lại.
-
-Secrets cần có: `EC2_SSH_KEY`, `EC2_HOST`.
-
-Thiết lập máy mới: chạy `deploy/setup-ec2.sh`, clone repo, tạo `.env`, chạy `deploy/init-ssl.sh`, rồi `docker compose up -d --build`.
-
-## Ghi chú
-
-- Với tên có số (ví dụ `3-methyl-1-butanol`), TTS cần số viết thành chữ: `three methyl one butanol`. System prompt yêu cầu agent tự chuyển.
-- Tên file âm thanh lấy từ 30 ký tự đầu của văn bản và tên giọng đọc, nên hai văn bản trùng 30 ký tự đầu sẽ ghi đè file của nhau.
-
-## Giấy phép
-
-Dùng nội bộ. Nếu cần mở nguồn, hãy thêm giấy phép phù hợp.
+The local learning material remains under the ignored `learn/` directory. Its four short lessons cover backend foundations, agents/RAG, production behavior, and deployment.

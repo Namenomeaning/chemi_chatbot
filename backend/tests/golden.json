@@ -1,0 +1,10 @@
+[
+  {"query": "What is the formula of ethanol?", "source": "ethanol.md"},
+  {"query": "Metan có công thức gì?", "source": "methane.md"},
+  {"query": "What is ethanoic acid?", "source": "ethanoic-acid.md"},
+  {"query": "What functional group does ethanal have?", "source": "ethanal.md"},
+  {"query": "Why is water polar?", "source": "water.md"},
+  {"query": "Ethene polymerization", "source": "ethene.md"},
+  {"query": "Who won the football tournament?", "source": null},
+  {"query": "How to configure Kubernetes?", "source": null}
+]
