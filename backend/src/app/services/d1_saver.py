@@ -40,14 +40,19 @@ class D1Saver(BaseCheckpointSaver[str]):
         writes = await self._all(
             "SELECT task_id, channel, type, value FROM writes "
             "WHERE thread_id=? AND checkpoint_ns=? AND checkpoint_id=? ORDER BY task_id, idx",
-            thread_id, ns, cid,
+            thread_id,
+            ns,
+            cid,
         )
         sends: list[dict] = []
         if parent:
             sends = await self._all(
                 "SELECT type, value FROM writes WHERE thread_id=? AND checkpoint_ns=? "
                 "AND checkpoint_id=? AND channel=? ORDER BY task_path, task_id, idx",
-                thread_id, ns, parent, TASKS,
+                thread_id,
+                ns,
+                parent,
+                TASKS,
             )
         checkpoint = {
             **self.serde.loads_typed((row["type"], base64.b64decode(row["checkpoint"]))),
@@ -74,13 +79,15 @@ class D1Saver(BaseCheckpointSaver[str]):
         if cid := get_checkpoint_id(config):
             rows = await self._all(
                 "SELECT * FROM checkpoints WHERE thread_id=? AND checkpoint_ns=? AND checkpoint_id=?",
-                thread_id, ns, cid,
+                thread_id,
+                ns,
+                cid,
             )
         else:
             rows = await self._all(
-                "SELECT * FROM checkpoints WHERE thread_id=? AND checkpoint_ns=? "
-                "ORDER BY checkpoint_id DESC LIMIT 1",
-                thread_id, ns,
+                "SELECT * FROM checkpoints WHERE thread_id=? AND checkpoint_ns=? ORDER BY checkpoint_id DESC LIMIT 1",
+                thread_id,
+                ns,
             )
         return await self._tuple(rows[0]) if rows else None
 
@@ -129,7 +136,14 @@ class D1Saver(BaseCheckpointSaver[str]):
             "INSERT OR REPLACE INTO checkpoints "
             "(thread_id, checkpoint_ns, checkpoint_id, parent_id, type, checkpoint, metadata_type, metadata) "
             "VALUES (?,?,?,?,?,?,?,?)",
-            thread_id, ns, checkpoint["id"], conf.get("checkpoint_id") or "", ctype, _b64(cdata), mtype, _b64(mdata),
+            thread_id,
+            ns,
+            checkpoint["id"],
+            conf.get("checkpoint_id") or "",
+            ctype,
+            _b64(cdata),
+            mtype,
+            _b64(mdata),
         )
         return {"configurable": {"thread_id": thread_id, "checkpoint_ns": ns, "checkpoint_id": checkpoint["id"]}}
 
@@ -149,5 +163,13 @@ class D1Saver(BaseCheckpointSaver[str]):
             await self._run(
                 f"{verb} INTO writes (thread_id, checkpoint_ns, checkpoint_id, task_id, idx, channel, type, value, task_path) "
                 "VALUES (?,?,?,?,?,?,?,?,?)",
-                thread_id, ns, cid, task_id, widx, channel, vtype, _b64(vdata), task_path,
+                thread_id,
+                ns,
+                cid,
+                task_id,
+                widx,
+                channel,
+                vtype,
+                _b64(vdata),
+                task_path,
             )

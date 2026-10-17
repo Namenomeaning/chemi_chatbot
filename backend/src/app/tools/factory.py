@@ -3,21 +3,21 @@
 Each tool returns (content, artifact). The model reads only the content. The server reads the artifact:
 {"kind": "image", "url": ...}, {"kind": "audio", "key": ...} or {"kind": "quiz", "data": {...}}.
 """
+
 import json
 import logging
-import re
 import uuid
+from urllib.parse import quote
 
 import httpx
 from langchain_core.tools import tool
 
 from app.core.config import Settings
 from app.prompts import QUIZ_SYSTEM_PROMPT
+from app.schemas.quiz import QuizData
 from app.services.cloudflare import to_js_bytes
 
 logger = logging.getLogger(__name__)
-
-AUDIO_ID = re.compile(r"^audio/[0-9a-f]{32}$")
 
 
 def make_tools(settings: Settings, bucket):
@@ -33,7 +33,24 @@ def make_tools(settings: Settings, bucket):
         Hình ảnh được hệ thống tự hiển thị cho người dùng.
         """
         if settings.serpapi_key is None:
-            return f"Không tìm thấy hình ảnh cho '{keyword}' (missing API key)", None
+            # PubChem supplies chemical structure diagrams without an API key.
+            compound = keyword.strip()
+            for suffix in (" structure", " 3d model", " 2d", " bottle"):
+                compound = compound.removesuffix(suffix)
+            try:
+                async with httpx.AsyncClient(timeout=10) as client:
+                    response = await client.get(
+                        f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{quote(compound, safe='')}/cids/JSON"
+                    )
+                    response.raise_for_status()
+                    cid = int(response.json()["IdentifierList"]["CID"][0])
+                return "Đã tìm thấy cấu trúc từ PubChem.", {
+                    "kind": "image",
+                    "url": f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/PNG",
+                }
+            except Exception as exc:
+                logger.warning("structure_image_failed exception_type=%s", type(exc).__name__)
+                return "Không tìm thấy hình ảnh phù hợp.", None
         try:
             async with httpx.AsyncClient(timeout=10) as client:
                 response = await client.get(
@@ -44,7 +61,7 @@ def make_tools(settings: Settings, bucket):
             if images := response.json().get("images_results"):
                 return "Đã tìm thấy 1 hình ảnh.", {"kind": "image", "url": images[0].get("original")}
         except Exception as e:
-            logger.error("Image search error: %s", e)
+            logger.warning("image_search_failed exception_type=%s", type(e).__name__)
         return f"Không tìm thấy hình ảnh cho '{keyword}'", None
 
     @tool(response_format="content_and_artifact")
@@ -61,14 +78,20 @@ def make_tools(settings: Settings, bucket):
                 response = await client.post(
                     f"{base_url}/audio/speech",
                     headers=headers,
-                    json={"model": settings.tts_model, "voice": settings.tts_voice, "input": text, "response_format": "mp3"},
+                    json={
+                        "model": settings.tts_model,
+                        "voice": settings.tts_voice,
+                        "input": text,
+                        "response_format": "mp3",
+                    },
                 )
             response.raise_for_status()
             key = f"audio/{uuid.uuid4().hex}"
             await bucket.put(key, to_js_bytes(response.content))
             return "Đã tạo âm thanh.", {"kind": "audio", "key": key}
         except Exception as e:
-            return f"Lỗi: Không thể tạo âm thanh - {e}", None
+            logger.warning("speech_failed exception_type=%s", type(e).__name__)
+            return "Không thể tạo âm thanh lúc này.", None
 
     @tool(response_format="content_and_artifact")
     async def generate_quiz(question_type: str, topic: str = "random", level: int = 1) -> tuple[str, dict | None]:
@@ -80,6 +103,8 @@ def make_tools(settings: Settings, bucket):
         - Trả về: chuỗi JSON mô tả nội dung, cấu hình nhập và cách chấm.
           Câu hỏi được hệ thống tự hiển thị cho người dùng.
         """
+        if question_type not in {"mcq", "matching", "free_text", "listening"} or level not in range(1, 5):
+            return "Quiz type or level is invalid.", None
         level_desc = {
             1: "Nhận biết - câu hỏi đơn giản, trực tiếp",
             2: "Thông hiểu - cần hiểu khái niệm cơ bản",
@@ -122,12 +147,13 @@ def make_tools(settings: Settings, bucket):
             quiz["topic"] = topic
             quiz.setdefault("input_type", "radio" if question_type in {"mcq", "listening"} else "text")
             quiz.setdefault("check_method", "fuzzy" if question_type == "free_text" else "exact")
+            quiz = QuizData.model_validate(quiz).model_dump()
             return json.dumps(quiz, ensure_ascii=False), {"kind": "quiz", "data": quiz}
         except json.JSONDecodeError as e:
-            logger.error("Quiz JSON parse error: %s", e)
-            return json.dumps({"error": f"Lỗi parse JSON: {e}"}), None
+            logger.warning("quiz_parse_failed exception_type=%s", type(e).__name__)
+            return json.dumps({"error": "Quiz data was invalid."}), None
         except Exception as e:
-            logger.error("Quiz generation error: %s", e)
-            return json.dumps({"error": f"Lỗi tạo quiz: {e}"}), None
+            logger.warning("quiz_failed exception_type=%s", type(e).__name__)
+            return json.dumps({"error": "Quiz generation is unavailable."}), None
 
     return [search_image, generate_speech, generate_quiz]

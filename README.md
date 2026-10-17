@@ -1,70 +1,89 @@
-# CHEMI – Chatbot Hóa học
+# CHEMI — Chemistry tutor
 
-CHEMI là chatbot Hóa học THPT chạy như một Python Worker trên Cloudflare (FastAPI, LangChain, LangGraph), kèm giao diện chat tĩnh. Chatbot trả lời bằng tiếng Việt, dùng danh pháp IUPAC tiếng Anh cho tên chất và nhóm chức, tìm hình ảnh, tạo giọng đọc tiếng Anh và sinh câu hỏi luyện tập.
+CHEMI is a Vietnamese high-school chemistry assistant. It explains compounds, shows chemical structures, reads English names, and creates practice quizzes. Chemical names use English nomenclature.
 
-Nhánh `main` là bản code hiện tại. Nhánh `learn` giữ bản prototype cũ (FastAPI, SQLite, Docker) để học từng bước.
+The application runs as a Cloudflare Python Worker with FastAPI and LangGraph. The Worker also serves the chat interface at https://chemi.quangiz.me.
 
-## Kiến trúc
+## Request flow
 
-| Thành phần | Dịch vụ Cloudflare |
+```text
+Browser → Worker/ASGI → FastAPI dependencies → query service
+                                            ├─ D1 conversation checkpoints
+                                            ├─ D1 FTS5 + Vectorize retrieval
+                                            └─ LangGraph → OpenRouter → tools
+Response ← validated text, citations, quiz, image, and audio artifacts
+```
+
+| Location | Responsibility |
 |---|---|
-| API và agent | Python Worker (`backend/src/worker.py`, FastAPI qua ASGI) |
-| Bộ nhớ hội thoại theo `thread_id` | D1 (`D1Saver`, bảng `checkpoints` và `writes`) |
-| File âm thanh do tool tạo | R2 (`chemi-artifacts`) |
-| Giới hạn tốc độ (10 yêu cầu / 60 giây / IP) | Rate Limiting binding `LIMITER` |
-| Giao diện chat | Static assets (`backend/static`) |
-| Log | Workers Observability |
+| `backend/src/worker.py` | Adapt Cloudflare requests to ASGI |
+| `backend/src/app/main.py` | Register routes, middleware, and error handlers |
+| `api/` | HTTP contracts, authentication, rate limits, and error responses |
+| `schemas/` | Validate requests, responses, and quiz data |
+| `services/` | Query workflow, model adapter, memory, retrieval, and artifact processing |
+| `tools/factory.py` | Model-callable image search, speech, and quiz generation |
+| `backend/knowledge/` | Small source corpus for retrieval |
+| `backend/tests/` | Offline tests using fake bindings and HTTP providers |
 
-Agent dùng `create_react_agent` với `langchain<1` và `langgraph<1`. Bản 1.x của `langgraph-checkpoint` cần `ormsgpack`, mà gói này chưa có bản cho Pyodide (môi trường Python của Workers).
+## Local setup
 
-## Yêu cầu
-
-- Python 3.13+, [uv](https://docs.astral.sh/uv/) 0.12.3 trở lên (`uv self update`), Node.js
-- Tài khoản Cloudflare (để deploy)
-
-| Biến | Bắt buộc | Mặc định | Dùng cho |
-|---|---|---|---|
-| `OPENAI_API_KEY` | có | – | LLM của agent |
-| `OPENAI_BASE_URL` | không | `https://gpt3.shupremium.com/v1` | Endpoint tương thích OpenAI |
-| `OPENAI_MODEL` | không | `gpt-4.1-mini` | Model của agent |
-| `GROQ_API_KEY` | có | – | TTS và soạn quiz |
-| `SERPAPI_KEY` | không | – | Tìm ảnh |
-
-## Chạy local
+Requirements: Python 3.13, Node.js 22 or newer, and uv 0.13.1. The lockfiles pin dependency versions.
 
 ```bash
 cd backend
-npm install
-cp .dev.vars.example .dev.vars   # điền OPENAI_API_KEY và GROQ_API_KEY
+npm ci
+uv sync --frozen
+cp .dev.vars.example .dev.vars
+```
+
+Edit `.dev.vars`. Set `OPENROUTER_API_KEY`. Set `API_KEYS` to a random application access key. Keep `APP_ENV=local` and `RAG_ENABLED=false` for a basic local run.
+
+```bash
 npx wrangler d1 execute chemi --local --file schema.sql
 uv run pywrangler dev
 ```
 
-Mở http://localhost:8787 để dùng giao diện chat. Kiểm tra nhanh:
+Open http://localhost:8787. Use **Mã truy cập** to enter the application access key. The browser keeps this key in tab session storage. It never receives the provider key.
+
+| Setting | Purpose |
+|---|---|
+| `OPENROUTER_API_KEY` | Required provider credential |
+| `API_KEYS` | Comma-separated application access keys. Required in production |
+| `APP_ENV` | `local`, `test`, or `production` |
+| `LLM_MODEL` | Agent model, default `openai/gpt-6-luna` |
+| `QUIZ_MODEL` | Quiz model, default `openai/gpt-oss-120b` |
+| `TTS_MODEL`, `TTS_VOICE` | Speech model and voice |
+| `SERPAPI_KEY` | Optional general image search. Without it, PubChem supplies compound structure diagrams |
+| `RAG_ENABLED` | Ground explanations with the knowledge corpus |
+| `CORS_ORIGINS` | Optional comma-separated browser origin allowlist |
+| `RETRIEVAL_MIN_SCORE` | Minimum semantic similarity, default `0.65` |
+
+Worker settings come from request bindings. They do not use `os.environ`. Local `.dev.vars` and production Worker secrets have separate lifecycles.
+
+## Verification
+
+From the repository root:
 
 ```bash
-curl localhost:8787/health
-curl -X POST localhost:8787/query -H 'content-type: application/json' -d '{"text":"Ethanol là gì?"}'
+make check
 ```
 
-## Deploy
+This runs lint, formatting checks, offline tests, and a small lexical retrieval evaluation. Tests need no provider credentials. The eight-case evaluation is a smoke set, not a production accuracy estimate.
 
-```bash
-cd backend
-npx wrangler login
-npx wrangler d1 create chemi                 # chép database_id vào wrangler.jsonc
-npx wrangler r2 bucket create chemi-artifacts
-npx wrangler d1 execute chemi --remote --file schema.sql
-npx wrangler secret put OPENAI_API_KEY
-npx wrangler secret put GROQ_API_KEY
-npx wrangler secret put SERPAPI_KEY          # tùy chọn
-uv run pywrangler deploy
-```
+The HTTP model adapter preserves image inputs, tool calls, tool results, and token usage. It avoids the OpenAI SDK and tiktoken in the Worker bundle. It supports asynchronous calls. Streaming is not implemented.
 
-Domain `chemi.quangiz.me` đã khai báo trong `routes` của `wrangler.jsonc` (zone `quangiz.me` phải nằm trong cùng tài khoản Cloudflare). R2 đang tắt: bật R2 trong dashboard, tạo bucket `chemi-artifacts`, rồi bỏ comment `r2_buckets` để dùng giọng đọc.
+## Retrieval and memory
 
-## Trạng thái kiểm thử
+The ingestion script splits Markdown into overlapping chunks with stable IDs. It stores text in D1 FTS5 and creates 768-dimensional Workers AI embeddings in Vectorize. Query retrieval combines keyword and semantic ranks with reciprocal rank fusion.
 
-- Đã chạy local với server OpenAI giả: `/health`, `/ready`, `POST /query` (agent + D1), trang chat, bộ nhớ trong D1.
-- Đã deploy: `https://chemi.quangiz.me` trả `/health`, `/ready` và trang chat.
-- Chưa chạy: gọi LLM thật, TTS và quiz (Groq), tìm ảnh (SerpAPI). `POST /query` trả 503 cho tới khi đặt secret `OPENAI_API_KEY` và `GROQ_API_KEY`.
+Explanations cite retrieved chunk IDs. The server removes unknown IDs and abstains without evidence or a valid citation. Citation filtering does not prove factual entailment. Exercises and image recognition use separate flows. Quiz schema validation does not prove answer correctness.
+
+D1Saver stores LangGraph checkpoints and pending writes. The client reuses a `thread_id`. The internal key includes the access-key identity. Callers sharing an access key also share its identity; this is not individual user authentication. Historical public threads from the earlier unscoped prototype are not imported into authenticated identities.
+
+## Deployment
+
+See [backend/DEPLOYMENT.md](backend/DEPLOYMENT.md). The deployment config includes D1, Vectorize, Workers AI, a rate limiter, observability, and the `chemi.quangiz.me` custom domain. R2 must be activated and its binding enabled before live audio storage works.
+
+The GitHub workflow runs `lint` and `test` for pull requests. On `main`, it then applies the additive schema, uploads knowledge, deploys, and runs health/readiness smoke checks. The deploy job requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
+
+The local learning material remains under the ignored `learn/` directory. Its four short lessons cover backend foundations, agents/RAG, production behavior, and deployment.

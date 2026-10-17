@@ -11,11 +11,14 @@
   ],
   // Speech needs R2. Enable R2 in the dashboard, run `npx wrangler r2 bucket create chemi-artifacts`, then uncomment:
   // "r2_buckets": [{ "binding": "ARTIFACTS", "bucket_name": "chemi-artifacts" }],
+  "vectorize": [{ "binding": "VECTORS", "index_name": "chemi-knowledge" }],
+  "ai": { "binding": "AI" },
   "ratelimits": [
     { "name": "LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
   ],
   "vars": {
-    "APP_ENV": "local"
+    "APP_ENV": "production",
+    "RAG_ENABLED": "true"
   },
   "observability": { "enabled": true },
   // The zone quangiz.me must be in the same Cloudflare account.

@@ -1559,6 +1559,7 @@
                     </div>
                 </div>
                 <div class="header-right">
+                    <button type="button" class="status-badge" style="border:0;cursor:pointer" onclick="configureAccessKey()">Mã truy cập</button>
                     <div class="status-badge">
                         <span class="status-dot"></span>
                         <span>Trực tuyến</span>
@@ -1676,6 +1677,24 @@
         let currentQuiz = null;
 
         const API_BASE = window.location.origin;
+
+        function configureAccessKey() {
+            const value = window.prompt('Nhập mã truy cập CHEMI. Mã chỉ được giữ trong phiên tab này.');
+            if (value !== null) {
+                if (value.trim()) sessionStorage.setItem('chemi_api_key', value.trim());
+                else sessionStorage.removeItem('chemi_api_key');
+            }
+        }
+
+        function answerWithSources(data) {
+            const sources = data.citations || [];
+            let text = data.text_response || '';
+            sources.forEach((source, index) => {
+                text = text.split(`[source:${source.id}]`).join(`[${index + 1}]`);
+            });
+            if (sources.length) text += '\n\nNguồn: ' + sources.map((source, index) => `[${index + 1}] ${source.source}`).join('; ');
+            return text;
+        }
 
         const STORAGE_CONFIG = {
             maxSessions: 10,
@@ -1952,7 +1971,7 @@
             try {
                 const response = await fetch(`${API_BASE}/query`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-API-Key': sessionStorage.getItem('chemi_api_key') || '' },
                     body: JSON.stringify({
                         text: text || null,
                         image_base64: imageBase64ToSend || null,
@@ -1963,13 +1982,15 @@
                 const data = await response.json();
                 removeLoadingMessage(loadingId);
 
-                if (data.success) {
+                if (response.ok && data.success) {
                     threadId = data.thread_id;
                     updateSessionDisplay();
                     saveSession();
-                    addMessage('bot', data.text_response, null, data.image_base64, data.audio_base64, null, data.quiz_data);
+                    addMessage('bot', answerWithSources(data), null, data.image_base64, data.audio_base64, null, data.quiz_data);
                 } else {
-                    addMessage('bot', null, null, null, null, data.error || 'Có lỗi xảy ra.', null);
+                    const message = typeof data.error === 'string' ? data.error : (data.error?.message || 'Có lỗi xảy ra.');
+                    addMessage('bot', null, null, null, null, message, null);
+                    if (response.status === 401) configureAccessKey();
                 }
             } catch (error) {
                 removeLoadingMessage(loadingId);
@@ -2010,7 +2031,7 @@
                         const imgSrc = structureImage.startsWith('http') ? structureImage : `data:image/png;base64,${structureImage}`;
                         mediaHtml += `
                             <div class="structure-container">
-                                <img src="${imgSrc}" alt="Structure" class="structure-image">
+                                <img src="${escapeAttribute(imgSrc)}" alt="Structure" class="structure-image">
                             </div>
                         `;
                     }
@@ -2021,7 +2042,7 @@
                             <div class="audio-container">
                                 <p class="audio-label">&#128266; Phát âm</p>
                                 <audio controls>
-                                    <source src="${audioSrc}" type="audio/mpeg">
+                                    <source src="${escapeAttribute(audioSrc)}" type="audio/mpeg">
                                 </audio>
                             </div>
                         `;
@@ -2115,14 +2136,14 @@
 
                         if (msg.structureImage) {
                             const imgSrc = msg.structureImage.startsWith('http') ? msg.structureImage : `data:image/png;base64,${msg.structureImage}`;
-                            mediaHtml += `<div class="structure-container"><img src="${imgSrc}" alt="Cấu trúc" class="structure-image"></div>`;
+                            mediaHtml += `<div class="structure-container"><img src="${escapeAttribute(imgSrc)}" alt="Cấu trúc" class="structure-image"></div>`;
                         } else if (msg.hasImage) {
                             mediaHtml += `<div class="media-placeholder">&#128444; Hình ảnh cấu trúc đã được dọn dẹp</div>`;
                         }
 
                         if (msg.audio) {
                             const audioSrc = msg.audio.startsWith('http') ? msg.audio : `data:audio/mpeg;base64,${msg.audio}`;
-                            mediaHtml += `<div class="audio-container"><p class="audio-label">&#128266; Phát âm</p><audio controls><source src="${audioSrc}" type="audio/mpeg"></audio></div>`;
+                            mediaHtml += `<div class="audio-container"><p class="audio-label">&#128266; Phát âm</p><audio controls><source src="${escapeAttribute(audioSrc)}" type="audio/mpeg"></audio></div>`;
                         } else if (msg.hasAudio) {
                             mediaHtml += `<div class="media-placeholder">&#128264; Audio đã được dọn dẹp</div>`;
                         }
@@ -2202,6 +2223,10 @@
             return div.innerHTML;
         }
 
+        function escapeAttribute(value) {
+            return escapeHtml(String(value)).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
         function formatMarkdown(text) {
             if (!text) return '';
             let html = escapeHtml(text);
@@ -2229,7 +2254,7 @@
                     <div class="audio-container" style="margin-bottom: 16px;">
                         <p class="audio-label">&#128266; Nghe mô tả và chọn đáp án</p>
                         <audio controls style="width: 100%;">
-                            <source src="${audioSrc}" type="audio/mpeg">
+                            <source src="${escapeAttribute(audioSrc)}" type="audio/mpeg">
                         </audio>
                     </div>
                 `;

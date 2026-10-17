@@ -1,32 +1,43 @@
-from fastapi import HTTPException, Request
+import hashlib
+import secrets
+
+from fastapi import Depends, HTTPException, Request
 from pydantic import ValidationError
 
-from app.core.config import Settings, load_settings
+from app.core.config import load_settings
 from app.services.cloudflare import to_js_obj
-
-_settings: Settings | None = None
 
 
 def get_env(request: Request):
     return request.scope["env"]
 
 
-def get_settings(request: Request) -> Settings:
-    """Build Settings on the first request. The env does not exist at import time."""
-    global _settings
-    if _settings is None:
+def get_settings(request: Request):
+    # Cache on this request only. Tests and different bindings cannot share stale secrets.
+    if not hasattr(request.state, "settings"):
         try:
-            _settings = load_settings(get_env(request))
-        except ValidationError as e:
-            # Name the fields only. Never echo values.
-            fields = ", ".join(str(err["loc"][0]).upper() for err in e.errors())
-            raise HTTPException(503, f"Server is not configured. Missing or invalid: {fields}") from e
-    return _settings
+            request.state.settings = load_settings(get_env(request))
+        except ValidationError as exc:
+            raise HTTPException(503, "Server configuration is incomplete or invalid.") from exc
+    return request.state.settings
 
 
-async def check_rate_limit(request: Request) -> None:
-    """Allow 10 requests per 60 s per client IP (limit is set in wrangler.jsonc)."""
-    key = request.headers.get("cf-connecting-ip") or "local"
+async def require_api_key(request: Request, settings=Depends(get_settings)) -> str:
+    supplied = request.headers.get("x-api-key", "")
+    if settings.api_keys:
+        valid = any(
+            secrets.compare_digest(supplied.encode(), key.get_secret_value().encode()) for key in settings.api_keys
+        )
+        if not valid:
+            raise HTTPException(401, "A valid X-API-Key is required.")
+        return hashlib.sha256(supplied.encode()).hexdigest()
+    return "local"
+
+
+async def check_rate_limit(request: Request, principal=Depends(require_api_key)) -> str:
+    identity = principal if principal != "local" else request.headers.get("cf-connecting-ip", "local")
+    key = hashlib.sha256(identity.encode()).hexdigest()
     result = await get_env(request).LIMITER.limit(to_js_obj({"key": key}))
     if not result.success:
-        raise HTTPException(429, "Quá nhiều yêu cầu, vui lòng thử lại sau ít phút")
+        raise HTTPException(429, "Too many requests. Please retry later.", headers={"Retry-After": "60"})
+    return principal

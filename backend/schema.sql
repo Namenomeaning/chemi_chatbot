@@ -21,3 +21,11 @@ CREATE TABLE IF NOT EXISTS writes (
   task_path TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (thread_id, checkpoint_ns, checkpoint_id, task_id, idx)
 );
+
+-- Additive migration: checkpoints remain intact.
+CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
+  id UNINDEXED,
+  source UNINDEXED,
+  content,
+  tokenize='unicode61 remove_diacritics 2'
+);
