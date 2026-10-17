@@ -34,3 +34,23 @@ def test_only_current_turn_artifacts_are_returned():
 
 def test_malformed_quiz_is_dropped():
     assert parse_quiz({"question_text": "incomplete"}) is None
+
+
+def test_inconsistent_quiz_controls_are_rejected():
+    quiz = {
+        "quiz_id": "1234abcd",
+        "type": "mcq",
+        "level": 1,
+        "topic": "alcohol",
+        "question_text": "Which is an alcohol?",
+        "input_type": "radio",
+        "options": ["A) Ethanol", "B) Methane"],
+        "check_method": "exact",
+        "correct_answer": "Z",
+        "explanation": "Ethanol is an alcohol.",
+    }
+    assert parse_quiz(quiz) is None
+    quiz["correct_answer"] = "A"
+    assert parse_quiz(quiz)["correct_answer"] == "A"
+    quiz["type"] = "listening"
+    assert parse_quiz(quiz) is None

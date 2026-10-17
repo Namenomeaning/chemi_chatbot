@@ -49,7 +49,15 @@ bash smoke.sh https://chemi.quangiz.me
 
 The ingestion script uses `CLOUDFLARE_API_TOKEN` when set. Locally, it can obtain the existing Wrangler OAuth token without printing it. Vectorize mutations become visible asynchronously. The script replaces the lexical corpus after vector submission. Removed vector IDs can remain in the index, but retrieval only accepts IDs with current D1 text. A larger corpus needs a versioned ingestion process and stale-vector cleanup.
 
-The smoke script checks `/health` and D1 connectivity through `/ready`. Also verify a real authenticated query, source citations, a follow-up turn, quiz data, an image, and audio. The basic smoke check does not cover these features.
+The smoke script checks `/health` and D1 connectivity through `/ready`. Also verify a real authenticated query, source citations, a follow-up turn, quiz data, an image, and audio. The basic smoke check does not cover these features. Run the full checker separately:
+
+```bash
+uv run python scripts/check_live.py --full
+# After R2 activation:
+uv run python scripts/check_live.py --full --audio
+```
+
+This command makes real model calls and consumes the application rate limit.
 
 ## Access and logs
 
@@ -79,3 +87,5 @@ A rollback changes the Worker version, not D1 data. Use additive migrations. Kee
 - Generated quizzes need factual quality evaluation beyond schema validation.
 - API keys are caller-group access, not individual user accounts.
 - Streaming, artifact expiration, and production latency distributions remain future improvements.
+
+The Cloudflare rate limiter is per-location and eventually consistent. It is not a strict global billing quota. See the [rate-limit documentation](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/).
